@@ -71,7 +71,6 @@ erDiagram
 
 ## ⚙️ Instrucciones para levantar la base de datos
 
-1. Abre tu gestor de base de datos MySQL (por ejemplo, MySQL Workbench o phpMyAdmin).
-2. Asegúrate de tener el motor MySQL en ejecución.
+1. Tener el motor MySQL en ejecución PhpMyAdmin.
 3. Ejecuta el script `inmobiliaria.sql` provisto en la raíz de este repositorio. Esto creará la base de datos `inmobiliaria` y las tablas necesarias.
 4. Actualiza la cadena de conexión en el archivo `appsettings.json` o usando `dotnet user-secrets` con tu usuario y contraseña de MySQL.
