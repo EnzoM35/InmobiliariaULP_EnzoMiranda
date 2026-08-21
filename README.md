@@ -6,7 +6,7 @@
 
 ## 👥 Integrantes del Grupo
 
-* **Enzo** - **[EMAIL_ADDRESS]** - [@Enzo](https://github.com/Enzo)
+* **Enzo** - **enzo792015@gmail.com** - [@Enzo](https://github.com/Enzo)
 
 ---
 
