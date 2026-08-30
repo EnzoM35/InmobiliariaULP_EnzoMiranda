@@ -1,0 +1,39 @@
+@model Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.TipoInmueble
+
+@{
+    ViewData["Title"] = "Detalles del Tipo de Inmueble";
+}
+
+<h1>Detalles</h1>
+
+<div class="card shadow-sm col-md-6">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0">Tipo de Inmueble</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.IdTipoInmueble)
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.IdTipoInmueble)
+            </dd>
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.Descripcion)
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.Descripcion)
+            </dd>
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.Activo)
+            </dt>
+            <dd class="col-sm-8">
+                <span class="badge bg-success">Activo</span>
+            </dd>
+        </dl>
+        <div class="mt-3">
+            <a asp-action="Edit" asp-route-id="@Model?.IdTipoInmueble" class="btn btn-warning">Editar</a>
+            <a asp-action="Index" class="btn btn-secondary">Volver al listado</a>
+        </div>
+    </div>
+</div>

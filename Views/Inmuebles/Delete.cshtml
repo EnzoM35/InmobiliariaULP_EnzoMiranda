@@ -1,0 +1,61 @@
+@model Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Inmueble
+
+@{
+    ViewData["Title"] = "Borrar Inmueble";
+}
+
+<h1>Borrar Inmueble</h1>
+
+<div class="alert alert-warning col-md-6">
+    <h5>¿Está seguro que desea eliminar este inmueble?</h5>
+    <p class="mb-0">El registro se desactivará lógicamente del sistema.</p>
+</div>
+
+<div class="card shadow-sm col-md-6">
+    <div class="card-body">
+        @if(ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+        <dl class="row">
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.IdInmueble)
+            </dt>
+            <dd class="col-sm-8">
+                #@Model.IdInmueble
+            </dd>
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.Direccion)
+            </dt>
+            <dd class="col-sm-8">
+                <strong>@Model.Direccion</strong>
+            </dd>
+            <dt class="col-sm-4">
+                Tipo
+            </dt>
+            <dd class="col-sm-8">
+                @Model.Tipo?.Descripcion
+            </dd>
+            <dt class="col-sm-4">
+                Propietario
+            </dt>
+            <dd class="col-sm-8">
+                @Model.Duenio?.Nombre @Model.Duenio?.Apellido
+            </dd>
+            <dt class="col-sm-4">
+                Precio por Día
+            </dt>
+            <dd class="col-sm-8">
+                @Model.PrecioDia.ToString("C")
+            </dd>
+        </dl>
+        
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="IdInmueble" />
+            <div class="d-flex gap-2">
+                <input type="submit" value="Confirmar Borrado" class="btn btn-danger" />
+                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>

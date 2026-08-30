@@ -4,6 +4,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.IRepositorioPropietario, Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.RepositorioPropietario>();
 builder.Services.AddScoped<Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.IRepositorioInquilino, Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.RepositorioInquilino>();
+builder.Services.AddScoped<Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.IRepositorioTipoInmueble, Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.RepositorioTipoInmueble>();
+builder.Services.AddScoped<Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.IRepositorioInmueble, Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.RepositorioInmueble>();
+builder.Services.AddScoped<Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.IRepositorioReserva, Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.RepositorioReserva>();
 
 var app = builder.Build();
 

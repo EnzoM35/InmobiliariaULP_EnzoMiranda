@@ -6,7 +6,7 @@
 
 ## 👥 Integrantes del Grupo
 
-* **Enzo** - **enzo792015@gmail.com** - [@Enzo](https://github.com/Enzo)
+* **Enzo Miranda** - *enzo792015@gmail.com* - [@Enzo](https://github.com/Enzo)
 
 ---
 
@@ -18,12 +18,13 @@ A continuación se presenta el esquema del modelo de datos correspondiente a la 
 
 ```mermaid
 erDiagram
-    PROPIETARIO ||--o{ INMUEBLE : posee
-    INMUEBLE ||--o{ RESERVA : tiene
-    INQUILINO ||--o{ RESERVA : realiza
-    RESERVA ||--o{ PAGO : genera
+    PROPIETARIOS ||--o{ INMUEBLES : posee
+    TIPOS_INMUEBLE ||--o{ INMUEBLES : clasifica
+    INMUEBLES ||--o{ RESERVAS : tiene
+    INQUILINOS ||--o{ RESERVAS : realiza
+    RESERVAS ||--o{ PAGOS : genera
 
-    PROPIETARIO {
+    PROPIETARIOS {
         int IdPropietario PK
         string Nombre
         string Apellido
@@ -31,39 +32,61 @@ erDiagram
         string Telefono
         string Email
         string Clave
+        tinyint Activo
     }
 
-    INQUILINO {
+    INQUILINOS {
         int IdInquilino PK
         string Nombre
         string Apellido
         string Dni
         string Telefono
         string Email
+        tinyint Activo
     }
 
-    INMUEBLE {
+    TIPOS_INMUEBLE {
+        int IdTipoInmueble PK
+        string Descripcion
+        tinyint Activo
+    }
+
+    INMUEBLES {
         int IdInmueble PK
-        int PropietarioId FK
         string Direccion
-        int Ambientes
-        decimal Precio
+        int Cupo
+        decimal Latitud
+        decimal Longitud
+        decimal PrecioDia
+        decimal PorcentajeReserva
+        tinyint Disponible
+        string Portada
+        int IdTipoInmueble FK
+        int IdPropietario FK
+        tinyint Activo
     }
 
-    RESERVA {
+    RESERVAS {
         int IdReserva PK
-        int InmuebleId FK
-        int InquilinoId FK
+        int IdInquilino FK
+        int IdInmueble FK
         date FechaDesde
         date FechaHasta
-        decimal Monto
+        decimal PrecioPorDia
+        decimal MontoTotal
+        datetime FechaTerminacion
+        decimal Multa
+        string Estado
+        tinyint Activo
     }
 
-    PAGO {
+    PAGOS {
         int IdPago PK
         int ReservaId FK
+        string Concepto
+        datetime FechaPago
         decimal Importe
-        date FechaPago
+        tinyint Activo
     }
 ```
 
@@ -71,6 +94,7 @@ erDiagram
 
 ## ⚙️ Instrucciones para levantar la base de datos
 
-1. Tener el motor MySQL en ejecución PhpMyAdmin.
-3. Ejecuta el script `inmobiliaria.sql` provisto en la raíz de este repositorio. Esto creará la base de datos `inmobiliaria` y las tablas necesarias.
-4. Actualiza la cadena de conexión en el archivo `appsettings.json` o usando `dotnet user-secrets` con tu usuario y contraseña de MySQL.
+1. Abre tu gestor de base de datos MySQL (por ejemplo, phpMyAdmin o MySQL Workbench).
+2. Asegúrate de tener el servicio de MySQL en ejecución (por ejemplo desde el panel de control de XAMPP).
+3. Ejecuta el script `inmobiliaria.sql` provisto en la raíz de este repositorio. Esto creará la base de datos `inmobiliaria`, las tablas correspondientes (`Propietarios`, `Inquilinos`, `TiposInmueble`, `Inmuebles`, `Reservas`) y cargará datos de prueba.
+4. Verifica que la cadena de conexión en el archivo `appsettings.json` coincida con las credenciales de tu servidor MySQL local (por defecto `Server=localhost;Database=inmobiliaria;User=root;Password=;`).
