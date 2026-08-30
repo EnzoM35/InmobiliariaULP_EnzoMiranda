@@ -14,8 +14,8 @@
 
 Antes de ejecutar la aplicación, asegúrate de contar con:
 * [.NET 10 SDK](https://dotnet.microsoft.com/download) (o la versión compatible de .NET instalada).
-* Servidor **MySQL** (mediante [XAMPP](https://www.apachefriends.org/), MySQL Server o MySQL Workbench).
-* Un navegador web moderno.
+* Servidor **MySQL** (mediante [XAMPP]).
+
 
 ---
 
@@ -103,8 +103,8 @@ erDiagram
 
 ## ⚙️ Instrucciones para levantar la Base de Datos
 
-1. Abre tu gestor de base de datos MySQL preferido (por ejemplo, **phpMyAdmin**, **MySQL Workbench** o **DBeaver**).
-2. Asegúrate de tener el servicio de MySQL en ejecución (por ejemplo, iniciando el módulo MySQL en el panel de **XAMPP**).
+1. Abre tu gestor de base de datos MySQL (por ejemplo, **phpMyAdmin**).
+2. Asegúrate de tener el servicio de MySQL en ejecución (iniciando el módulo MySQL en el panel de **XAMPP**).
 3. Ejecuta el script [`inmobiliaria.sql`](inmobiliaria.sql) ubicado en la raíz de este proyecto.
    * Este script creará automáticamente la base de datos `inmobiliaria`, todas las tablas (`Propietarios`, `Inquilinos`, `TiposInmueble`, `Inmuebles`, `Reservas`), relaciones/claves foráneas y cargará los datos iniciales de prueba.
 4. Verifica que la cadena de conexión en el archivo `appsettings.json` coincida con las credenciales de tu servidor MySQL local:
@@ -121,7 +121,7 @@ erDiagram
 
 ## 🚀 Instrucciones para ejecutar el Proyecto
 
-1. Clona el repositorio (si aún no lo hiciste):
+1. Clona el repositorio:
    ```bash
    git clone https://github.com/EnzoM35/InmobiliariaULP_EnzoMiranda.git
    cd InmobiliariaULP_EnzoMiranda
