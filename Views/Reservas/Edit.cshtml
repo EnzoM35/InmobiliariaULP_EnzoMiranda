@@ -1,0 +1,117 @@
+@model Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Reserva
+
+@{
+    ViewData["Title"] = "Editar Reserva";
+    var inquilinos = ViewBag.Inquilinos as IList<Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Inquilino> ?? new List<Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Inquilino>();
+    var inmuebles = ViewBag.Inmuebles as IList<Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Inmueble> ?? new List<Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Inmueble>();
+}
+
+<h1>Editar Reserva #@Model.IdReserva</h1>
+<hr />
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    @if(ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger">@ViewBag.Error</div>
+                    }
+                    <input type="hidden" asp-for="IdReserva" />
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="IdInquilino" class="form-label"></label>
+                            <select asp-for="IdInquilino" class="form-select">
+                                @foreach (var inq in inquilinos)
+                                {
+                                    <option value="@inq.IdInquilino" selected="@(inq.IdInquilino == Model.IdInquilino)">
+                                        @inq.Nombre @inq.Apellido (DNI: @inq.Dni)
+                                    </option>
+                                }
+                            </select>
+                            <span asp-validation-for="IdInquilino" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="IdInmueble" class="form-label"></label>
+                            <select asp-for="IdInmueble" class="form-select" id="selectInmueble">
+                                @foreach (var inm in inmuebles)
+                                {
+                                    <option value="@inm.IdInmueble" data-precio="@inm.PrecioDia" selected="@(inm.IdInmueble == Model.IdInmueble)">
+                                        @inm.Direccion - @inm.Tipo?.Descripcion
+                                    </option>
+                                }
+                            </select>
+                            <span asp-validation-for="IdInmueble" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FechaDesde" class="form-label"></label>
+                            <input asp-for="FechaDesde" class="form-control" type="date" id="inputFechaDesde" />
+                            <span asp-validation-for="FechaDesde" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FechaHasta" class="form-label"></label>
+                            <input asp-for="FechaHasta" class="form-control" type="date" id="inputFechaHasta" />
+                            <span asp-validation-for="FechaHasta" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="PrecioPorDia" class="form-label"></label>
+                            <input asp-for="PrecioPorDia" type="number" step="0.01" class="form-control" id="inputPrecioDia" />
+                            <span asp-validation-for="PrecioPorDia" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="MontoTotal" class="form-label"></label>
+                            <input asp-for="MontoTotal" type="number" step="0.01" class="form-control" id="inputMontoTotal" />
+                            <span asp-validation-for="MontoTotal" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Estado" class="form-label"></label>
+                            <select asp-for="Estado" class="form-select">
+                                <option value="Vigente" selected="@(Model.Estado == "Vigente")">Vigente</option>
+                                <option value="Finalizada" selected="@(Model.Estado == "Finalizada")">Finalizada</option>
+                                <option value="Cancelada" selected="@(Model.Estado == "Cancelada")">Cancelada</option>
+                            </select>
+                            <span asp-validation-for="Estado" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FechaTerminacion" class="form-label"></label>
+                            <input asp-for="FechaTerminacion" class="form-control" type="date" />
+                            <span asp-validation-for="FechaTerminacion" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Multa" class="form-label"></label>
+                            <input asp-for="Multa" type="number" step="0.01" class="form-control" />
+                            <span asp-validation-for="Multa" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <input type="submit" value="Guardar Cambios" class="btn btn-primary" />
+                        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

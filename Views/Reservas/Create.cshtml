@@ -1,0 +1,118 @@
+@model Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Reserva
+
+@{
+    ViewData["Title"] = "Nueva Reserva";
+    var inquilinos = ViewBag.Inquilinos as IList<Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Inquilino> ?? new List<Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Inquilino>();
+    var inmuebles = ViewBag.Inmuebles as IList<Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Inmueble> ?? new List<Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Inmueble>();
+}
+
+<h1>Registrar Nueva Reserva</h1>
+<hr />
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    @if(ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger">@ViewBag.Error</div>
+                    }
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="IdInquilino" class="form-label"></label>
+                            <select asp-for="IdInquilino" class="form-select">
+                                <option value="">-- Seleccione un Inquilino --</option>
+                                @foreach (var inq in inquilinos)
+                                {
+                                    <option value="@inq.IdInquilino">@inq.Nombre @inq.Apellido (DNI: @inq.Dni)</option>
+                                }
+                            </select>
+                            <span asp-validation-for="IdInquilino" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="IdInmueble" class="form-label"></label>
+                            <select asp-for="IdInmueble" class="form-select" id="selectInmueble">
+                                <option value="">-- Seleccione un Inmueble --</option>
+                                @foreach (var inm in inmuebles)
+                                {
+                                    <option value="@inm.IdInmueble" data-precio="@inm.PrecioDia">
+                                        @inm.Direccion - @inm.Tipo?.Descripcion (@inm.PrecioDia.ToString("C")/día)
+                                    </option>
+                                }
+                            </select>
+                            <span asp-validation-for="IdInmueble" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FechaDesde" class="form-label"></label>
+                            <input asp-for="FechaDesde" class="form-control" type="date" id="inputFechaDesde" />
+                            <span asp-validation-for="FechaDesde" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FechaHasta" class="form-label"></label>
+                            <input asp-for="FechaHasta" class="form-control" type="date" id="inputFechaHasta" />
+                            <span asp-validation-for="FechaHasta" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="PrecioPorDia" class="form-label"></label>
+                            <input asp-for="PrecioPorDia" type="number" step="0.01" class="form-control" id="inputPrecioDia" />
+                            <span asp-validation-for="PrecioPorDia" class="text-danger"></span>
+                            <small class="text-muted">Se autocompleta con el precio del inmueble.</small>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="MontoTotal" class="form-label"></label>
+                            <input asp-for="MontoTotal" type="number" step="0.01" class="form-control" id="inputMontoTotal" />
+                            <span asp-validation-for="MontoTotal" class="text-danger"></span>
+                            <small class="text-muted">Calculado automáticamente (Días × Precio/día).</small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <input type="submit" value="Confirmar Reserva" class="btn btn-primary" />
+                        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function recalcularTotal() {
+            const fDesde = new Date(document.getElementById('inputFechaDesde').value);
+            const fHasta = new Date(document.getElementById('inputFechaHasta').value);
+            const precioDia = parseFloat(document.getElementById('inputPrecioDia').value) || 0;
+            
+            if (fDesde && fHasta && fHasta > fDesde) {
+                const diffTime = Math.abs(fHasta - fDesde);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                document.getElementById('inputMontoTotal').value = (diffDays * precioDia).toFixed(2);
+            }
+        }
+
+        document.getElementById('selectInmueble').addEventListener('change', function() {
+            const selected = this.options[this.selectedIndex];
+            const precio = selected.getAttribute('data-precio');
+            if (precio) {
+                document.getElementById('inputPrecioDia').value = parseFloat(precio).toFixed(2);
+                recalcularTotal();
+            }
+        });
+
+        document.getElementById('inputFechaDesde').addEventListener('change', recalcularTotal);
+        document.getElementById('inputFechaHasta').addEventListener('change', recalcularTotal);
+        document.getElementById('inputPrecioDia').addEventListener('input', recalcularTotal);
+    </script>
+}

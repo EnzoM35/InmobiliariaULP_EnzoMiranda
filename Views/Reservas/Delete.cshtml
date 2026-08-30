@@ -1,0 +1,45 @@
+@model Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Reserva
+
+@{
+    ViewData["Title"] = "Anular Reserva";
+}
+
+<h1>Anular Reserva</h1>
+
+<div class="alert alert-warning col-md-6">
+    <h5>¿Está seguro que desea anular esta reserva?</h5>
+    <p class="mb-0">La reserva pasará al estado "Anulada" y se desactivará lógicamente del sistema.</p>
+</div>
+
+<div class="card shadow-sm col-md-6">
+    <div class="card-body">
+        @if(ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+        <dl class="row">
+            <dt class="col-sm-4"># Reserva</dt>
+            <dd class="col-sm-8">#@Model.IdReserva</dd>
+
+            <dt class="col-sm-4">Inmueble</dt>
+            <dd class="col-sm-8"><strong>@Model.Inmueble?.Direccion</strong></dd>
+
+            <dt class="col-sm-4">Inquilino</dt>
+            <dd class="col-sm-8">@Model.Inquilino?.Nombre @Model.Inquilino?.Apellido</dd>
+
+            <dt class="col-sm-4">Período</dt>
+            <dd class="col-sm-8">@Model.FechaDesde.ToString("dd/MM/yyyy") - @Model.FechaHasta.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-4">Monto Total</dt>
+            <dd class="col-sm-8">@Model.MontoTotal.ToString("C")</dd>
+        </dl>
+        
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="IdReserva" />
+            <div class="d-flex gap-2">
+                <input type="submit" value="Confirmar Anulación" class="btn btn-danger" />
+                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
