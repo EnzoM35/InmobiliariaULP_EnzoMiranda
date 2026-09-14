@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
@@ -41,7 +41,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         [Display(Name = "Monto Total")]
         public decimal MontoTotal { get; set; }
 
-        [DataType(DataType.Date)]
+        [DataType(DataType.DateTime)]
         [Display(Name = "Fecha Terminación Efectiva")]
         public DateTime? FechaTerminacion { get; set; }
 
@@ -55,9 +55,49 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         [Display(Name = "Activo")]
         public bool Activo { get; set; } = true;
 
+        // Auditoría y relaciones
+        [Display(Name = "Creado por")]
+        public int? IdUsuarioCreador { get; set; }
+
+        [ForeignKey(nameof(IdUsuarioCreador))]
+        public Usuario? UsuarioCreador { get; set; }
+
+        [Display(Name = "Terminado por")]
+        public int? IdUsuarioTerminador { get; set; }
+
+        [ForeignKey(nameof(IdUsuarioTerminador))]
+        public Usuario? UsuarioTerminador { get; set; }
+
+        [Display(Name = "Reserva Origen")]
+        public int? IdReservaOrigen { get; set; }
+
+        [ForeignKey(nameof(IdReservaOrigen))]
+        public Reserva? ReservaOrigen { get; set; }
+
+        public IList<Pago> Pagos { get; set; } = new List<Pago>();
+
         [NotMapped]
         [Display(Name = "Cantidad de Días")]
         public int CantidadDias => (FechaHasta - FechaDesde).Days > 0 ? (FechaHasta - FechaDesde).Days : 0;
+
+        [NotMapped]
+        [Display(Name = "Total Abonado")]
+        public decimal TotalAbonado => Pagos?.Where(p => p.Estado == "Activo").Sum(p => p.Importe) ?? 0;
+
+        [NotMapped]
+        [Display(Name = "Saldo Pendiente")]
+        public decimal SaldoPendiente => (MontoTotal + Multa) - TotalAbonado;
+
+        [NotMapped]
+        [Display(Name = "Monto Mínimo de Seña")]
+        public decimal MontoMinimoSenia
+        {
+            get
+            {
+                var pct = Inmueble?.PorcentajeReserva ?? 10m;
+                return Math.Round(MontoTotal * (pct / 100m), 2);
+            }
+        }
 
         public override string ToString()
         {

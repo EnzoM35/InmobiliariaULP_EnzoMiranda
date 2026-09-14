@@ -1,0 +1,31 @@
+﻿@model Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Usuario
+@{
+    ViewData["Title"] = "Detalle de Usuario";
+}
+
+<div class="container mt-4">
+    <h2><i class="bi bi-person-vcard"></i> Detalle de Usuario</h2>
+    <hr />
+    <div class="card shadow-sm p-4 col-md-6">
+        <div class="d-flex align-items-center mb-3">
+            <img src="@(string.IsNullOrEmpty(Model.AvatarUrl) ? "/img/default-avatar.png" : Model.AvatarUrl)" 
+                 class="rounded-circle me-3" style="width: 70px; height: 70px; object-fit: cover;" alt="Avatar" />
+            <div>
+                <h4 class="mb-0">@Model.Nombre @Model.Apellido</h4>
+                <span class="badge @(Model.Rol == "Administrador" ? "bg-danger" : "bg-primary")">@Model.Rol</span>
+            </div>
+        </div>
+        <dl class="row mb-0">
+            <dt class="col-sm-4">ID</dt>
+            <dd class="col-sm-8">@Model.IdUsuario</dd>
+            <dt class="col-sm-4">Email</dt>
+            <dd class="col-sm-8">@Model.Email</dd>
+            <dt class="col-sm-4">Estado</dt>
+            <dd class="col-sm-8">@(Model.Activo ? "Activo" : "Inactivo")</dd>
+        </dl>
+        <div class="mt-4">
+            <a asp-action="Edit" asp-route-id="@Model.IdUsuario" class="btn btn-warning"><i class="bi bi-pencil"></i> Editar</a>
+            <a asp-action="Index" class="btn btn-secondary">Volver</a>
+        </div>
+    </div>
+</div>

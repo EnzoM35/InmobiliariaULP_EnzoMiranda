@@ -1,0 +1,91 @@
+﻿@model Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.PerfilViewModel
+@{
+    ViewData["Title"] = "Mi Perfil";
+}
+
+<div class="container mt-4">
+    <h2><i class="bi bi-person-gear"></i> Mi Perfil</h2>
+    <hr />
+
+    @if (TempData["MensajeExito"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["MensajeExito"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-4 text-center mb-4">
+            <div class="card shadow-sm p-4">
+                <img src="@(string.IsNullOrEmpty(Model.AvatarUrl) ? "/img/default-avatar.png" : Model.AvatarUrl)" 
+                     class="rounded-circle img-thumbnail mx-auto mb-3" 
+                     style="width: 160px; height: 160px; object-fit: cover;" alt="Avatar" />
+                <h5 class="fw-bold mb-1">@Model.Nombre @Model.Apellido</h5>
+                <p class="text-muted mb-2">@Model.Email</p>
+                <span class="badge @(Model.Rol == "Administrador" ? "bg-danger" : "bg-primary") fs-6">
+                    @Model.Rol
+                </span>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <form asp-action="Perfil" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="IdUsuario" />
+                        <input type="hidden" asp-for="Rol" />
+                        <input type="hidden" asp-for="AvatarUrl" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Nombre" class="form-label"></label>
+                                <input asp-for="Nombre" class="form-control" />
+                                <span asp-validation-for="Nombre" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Apellido" class="form-label"></label>
+                                <input asp-for="Apellido" class="form-control" />
+                                <span asp-validation-for="Apellido" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="AvatarFile" class="form-label">Cambiar Avatar (Foto)</label>
+                            <input asp-for="AvatarFile" type="file" class="form-control" accept="image/*" />
+                        </div>
+
+                        <h5 class="mt-4 mb-3 border-bottom pb-2">Cambiar ContraseÃ±a</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="NuevaPassword" class="form-label"></label>
+                                <input asp-for="NuevaPassword" class="form-control" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" />
+                                <span asp-validation-for="NuevaPassword" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ConfirmarPassword" class="form-label"></label>
+                                <input asp-for="ConfirmarPassword" class="form-control" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" />
+                                <span asp-validation-for="ConfirmarPassword" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary mt-2">
+                            <i class="bi bi-check-circle"></i> Guardar Cambios
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

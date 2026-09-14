@@ -1,0 +1,128 @@
+﻿@model Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.TerminarReservaViewModel
+
+@{
+    ViewData["Title"] = $"Terminar Anticipadamente Reserva #{Model.IdReserva}";
+    var r = Model.Reserva;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <div class="card shadow-sm border-danger rounded-3">
+            <div class="card-header bg-danger text-white py-3 d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 fw-bold"><i class="bi bi-calendar-x me-2"></i>TerminaciÃ³n Anticipada de Reserva</h4>
+                <span class="badge bg-white text-danger fw-bold fs-6">Reserva #@Model.IdReserva</span>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill fs-3 text-warning me-3"></i>
+                    <div>
+                        <strong>Regla de rescisiÃ³n anticipada:</strong><br />
+                        - Si se cumple <strong>menos de la mitad</strong> del tiempo convenido, la multa es del <strong>50%</strong> del saldo de los dÃ­as restantes.<br />
+                        - Si se cumple <strong>mÃ¡s o la mitad</strong> del tiempo convenido, la multa es del <strong>25%</strong> del saldo de los dÃ­as restantes.<br />
+                        <em>Al confirmar, el sistema registrarÃ¡ automÃ¡ticamente el cobro de la multa en el mÃ³dulo de pagos.</em>
+                    </div>
+                </div>
+
+                <!-- Resumen de la reserva -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <small class="text-muted d-block fw-bold">INQUILINO</small>
+                            <span class="fw-semibold">@r?.Inquilino?.Nombre @r?.Inquilino?.Apellido</span>
+                            <div class="small text-muted">DNI: @r?.Inquilino?.Dni</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <small class="text-muted d-block fw-bold">INMUEBLE</small>
+                            <span class="fw-semibold">@r?.Inmueble?.Direccion</span>
+                            <div class="small text-muted">$@r?.PrecioPorDia.ToString("N2") por noche</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <small class="text-muted d-block fw-bold">PERÃODO ORIGINAL</small>
+                            <span class="fw-semibold">@r?.FechaDesde.ToString("dd/MM/yyyy") al @r?.FechaHasta.ToString("dd/MM/yyyy")</span>
+                            <div class="small text-muted">@Model.DiasPactados dÃ­as contratados</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario interactivo con fecha efectiva -->
+                <div class="card border-0 bg-light p-3 mb-4">
+                    <form method="get" asp-action="Terminar" class="row g-2 align-items-center">
+                        <input type="hidden" name="id" value="@Model.IdReserva" />
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-dark mb-0">Seleccione la fecha de terminaciÃ³n efectiva:</label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="date" name="fechaEfectiva" class="form-control" 
+                                   value="@Model.FechaTerminacion.ToString("yyyy-MM-dd")" 
+                                   min="@r?.FechaDesde.ToString("yyyy-MM-dd")" 
+                                   max="@r?.FechaHasta.ToString("yyyy-MM-dd")" />
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-outline-dark w-100">
+                                <i class="bi bi-calculator me-1"></i> Recalcular
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Desglose del cÃ¡lculo de la multa -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white py-2 fw-semibold">
+                        <i class="bi bi-pie-chart me-2"></i>LiquidaciÃ³n y Desglose de Penalidad
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center g-3 mb-3">
+                            <div class="col-md-3">
+                                <div class="text-muted small">DÃ­as Cumplidos</div>
+                                <div class="fs-4 fw-bold text-dark">@Model.DiasCumplidos dÃ­as</div>
+                                <div class="small text-muted">de @Model.DiasPactados pactados</div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-muted small">DÃ­as Restantes</div>
+                                <div class="fs-4 fw-bold text-danger">@Model.DiasRestantes dÃ­as</div>
+                                <div class="small text-muted">no utilizados</div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-muted small">Saldo DÃ­as No Utilizados</div>
+                                <div class="fs-4 fw-bold text-dark">$@Model.SaldoNoUtilizado.ToString("N2")</div>
+                                <div class="small text-muted">@Model.DiasRestantes x $@r?.PrecioPorDia.ToString("N2")</div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-muted small">Tasa de Multa Aplicable</div>
+                                <div class="fs-4 fw-bold text-danger">@Model.PorcentajeMulta.ToString("0")%</div>
+                                <div class="small text-muted">@(Model.PorcentajeMulta == 50 ? "< 50% del plazo" : "â‰¥ 50% del plazo")</div>
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between align-items-center px-3">
+                            <span class="fs-5 fw-bold text-dark">TOTAL MULTA POR RESCISIÃ“N:</span>
+                            <span class="display-6 fw-bold text-danger">$@Model.MultaCalculada.ToString("N2")</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ConfirmaciÃ³n -->
+                <form asp-action="ConfirmarTerminacion" method="post" class="mt-4">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="idReserva" value="@Model.IdReserva" />
+                    <input type="hidden" name="fechaTerminacion" value="@Model.FechaTerminacion.ToString("yyyy-MM-dd")" />
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a asp-action="Details" asp-route-id="@Model.IdReserva" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> Cancelar y Volver
+                        </a>
+                        <button type="submit" class="btn btn-danger px-4 shadow-sm" onclick="return confirm('Â¿Confirma que desea rescindir la reserva anticipadamente? Se generarÃ¡ el cobro de la multa.');">
+                            <i class="bi bi-check-circle-fill me-1"></i> Confirmar TerminaciÃ³n con Multa ($@Model.MultaCalculada.ToString("N2"))
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

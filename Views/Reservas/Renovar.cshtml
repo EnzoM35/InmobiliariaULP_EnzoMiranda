@@ -1,0 +1,134 @@
+﻿@model Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Reserva
+
+@{
+    ViewData["Title"] = $"Renovar / Extender Reserva #{Model.IdReservaOrigen}";
+    var original = ViewBag.ReservaOriginal as Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Reserva;
+    bool conflicto = ViewBag.ConflictoFechas == true;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 fw-bold"><i class="bi bi-arrow-repeat me-2"></i>RenovaciÃ³n / ExtensiÃ³n de Reserva</h4>
+                <span class="badge bg-white text-primary fw-bold">Origen: Reserva #@Model.IdReservaOrigen</span>
+            </div>
+            <div class="card-body p-4">
+                @if (conflicto)
+                {
+                    <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill fs-3 text-danger me-3"></i>
+                        <div>
+                            <strong>Conflicto de disponibilidad:</strong> El inmueble ya cuenta con otra reserva para el perÃ­odo seleccionado. Por favor ajuste las fechas.
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-success d-flex align-items-center mb-4" role="alert">
+                        <i class="bi bi-check-circle-fill fs-3 text-success me-3"></i>
+                        <div>
+                            <strong>Inmueble disponible:</strong> La reserva origen concluye el <strong>@original?.FechaHasta.ToString("dd/MM/yyyy")</strong>. Puede proceder a registrar el nuevo perÃ­odo de estadÃ­a.
+                        </div>
+                    </div>
+                }
+
+                <!-- Ficha del inquilino e inmueble preseleccionados -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="card bg-light border-0 p-3 h-100">
+                            <h6 class="text-muted fw-bold mb-2"><i class="bi bi-person me-2"></i>Inquilino Habitual</h6>
+                            <div class="fw-semibold">@Model.Inquilino?.Nombre @Model.Inquilino?.Apellido</div>
+                            <div class="small text-muted">DNI: @Model.Inquilino?.Dni &bull; Tel: @Model.Inquilino?.Telefono</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light border-0 p-3 h-100">
+                            <h6 class="text-muted fw-bold mb-2"><i class="bi bi-building me-2"></i>Inmueble a Renovar</h6>
+                            <div class="fw-semibold">@Model.Inmueble?.Direccion</div>
+                            <div class="small text-muted">Tarifa: $@Model.PrecioPorDia.ToString("N2") / noche</div>
+                        </div>
+                    </div>
+                </div>
+
+                <form asp-action="Renovar" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="IdInquilino" />
+                    <input type="hidden" asp-for="IdInmueble" />
+                    <input type="hidden" asp-for="IdReservaOrigen" />
+                    <input type="hidden" asp-for="PrecioPorDia" />
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3" role="alert"></div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="FechaDesde" class="form-label fw-bold"></label>
+                            <input asp-for="FechaDesde" class="form-control" type="date" id="fechaDesde" />
+                            <small class="text-muted">Generalmente coincide con el fin de la reserva previa</small>
+                            <span asp-validation-for="FechaDesde" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="FechaHasta" class="form-label fw-bold"></label>
+                            <input asp-for="FechaHasta" class="form-control" type="date" id="fechaHasta" />
+                            <small class="text-muted">Fecha en la que finalizarÃ¡ la renovaciÃ³n</small>
+                            <span asp-validation-for="FechaHasta" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="card bg-light border-0 p-3 mb-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <span class="text-muted d-block">DuraciÃ³n estimada:</span>
+                                <strong id="lblDias">@Model.CantidadDias dÃ­as</strong>
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <span class="text-muted d-block">Monto Total Estimado:</span>
+                                <strong class="fs-4 text-primary" id="lblMonto">$@Model.MontoTotal.ToString("N2")</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Details" asp-route-id="@Model.IdReservaOrigen" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4 shadow-sm fw-semibold">
+                            <i class="bi bi-check-circle me-1"></i> Registrar RenovaciÃ³n
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        const precioDia = @Model.PrecioPorDia.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        const fDesde = document.getElementById("fechaDesde");
+        const fHasta = document.getElementById("fechaHasta");
+        const lblDias = document.getElementById("lblDias");
+        const lblMonto = document.getElementById("lblMonto");
+
+        function recalcular() {
+            if (fDesde.value && fHasta.value) {
+                const d1 = new Date(fDesde.value);
+                const d2 = new Date(fHasta.value);
+                const diffTime = d2 - d1;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays > 0) {
+                    lblDias.innerText = diffDays + " dÃ­as";
+                    const total = diffDays * precioDia;
+                    lblMonto.innerText = "$" + total.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                } else {
+                    lblDias.innerText = "0 dÃ­as";
+                    lblMonto.innerText = "$0.00";
+                }
+            }
+        }
+
+        fDesde.addEventListener("change", recalcular);
+        fHasta.addEventListener("change", recalcular);
+    </script>
+}

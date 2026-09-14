@@ -1,0 +1,86 @@
+﻿@model Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Pago
+
+@{
+    ViewData["Title"] = "Registrar Pago";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-primary text-white py-3">
+                <h4 class="mb-0 fw-bold"><i class="bi bi-cash-coin me-2"></i>Registrar Pago</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="IdReserva" class="form-label fw-semibold"></label>
+                        @if (ViewBag.Reservas != null)
+                        {
+                            <select asp-for="IdReserva" class="form-select" asp-items="ViewBag.Reservas">
+                                <option value="">-- Seleccionar Reserva --</option>
+                            </select>
+                        }
+                        else
+                        {
+                            <input asp-for="IdReserva" class="form-control" readonly />
+                        }
+                        <span asp-validation-for="IdReserva" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="NumeroPago" class="form-label fw-semibold"></label>
+                            <input asp-for="NumeroPago" class="form-control bg-light" readonly />
+                            <small class="text-muted">Calculado correlativamente por reserva</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="FechaPago" class="form-label fw-semibold"></label>
+                            <input asp-for="FechaPago" class="form-control" type="datetime-local" value="@Model.FechaPago.ToString("yyyy-MM-ddTHH:mm")" />
+                            <span asp-validation-for="FechaPago" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Importe" class="form-label fw-semibold"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="Importe" class="form-control form-control-lg fw-bold text-success" step="0.01" />
+                        </div>
+                        <span asp-validation-for="Importe" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Concepto" class="form-label fw-semibold"></label>
+                        <input asp-for="Concepto" class="form-control" placeholder="Ej: SeÃ±a 20%, CancelaciÃ³n de saldo, Cuota 2, etc." />
+                        <span asp-validation-for="Concepto" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        @if (Model.IdReserva > 0)
+                        {
+                            <a asp-action="PorReserva" asp-route-id="@Model.IdReserva" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Cancelar
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Cancelar
+                            </a>
+                        }
+                        <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                            <i class="bi bi-check-circle me-1"></i> Confirmar Pago
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

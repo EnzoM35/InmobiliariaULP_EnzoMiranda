@@ -1,4 +1,4 @@
-@model IEnumerable<Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Propietario>
+﻿@model IEnumerable<Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Propietario>
 
 @{
     ViewData["Title"] = "Propietarios";
@@ -32,10 +32,13 @@
             <td>@Html.DisplayFor(modelItem => item.Email)</td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.IdPropietario" class="btn btn-sm btn-warning">Editar</a> |
-                <a asp-action="Details" asp-route-id="@item.IdPropietario" class="btn btn-sm btn-info">Detalles</a> |
-                <a asp-action="Delete" asp-route-id="@item.IdPropietario" class="btn btn-sm btn-danger">Borrar</a>
+                <a asp-action="Details" asp-route-id="@item.IdPropietario" class="btn btn-sm btn-info">Detalles</a>
+                @if (User.IsInRole("Administrador")) {
+                    <text> | </text><a asp-action="Delete" asp-route-id="@item.IdPropietario" class="btn btn-sm btn-danger">Borrar</a>
+                }
             </td>
         </tr>
 }
     </tbody>
 </table>
+

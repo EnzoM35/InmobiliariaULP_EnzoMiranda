@@ -1,86 +1,196 @@
-@model Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Reserva
+﻿@model Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Reserva
 
 @{
-    ViewData["Title"] = "Detalles de la Reserva";
+    ViewData["Title"] = $"Detalles de la Reserva #{Model.IdReserva}";
+    decimal totalAbonado = Model.Pagos?.Where(p => p.Estado == "Activo").Sum(p => p.Importe) ?? 0;
+    decimal saldo = (Model.MontoTotal + Model.Multa) - totalAbonado;
 }
 
-<h1>Detalles de la Reserva</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a asp-action="Index">Reservas</a></li>
+                <li class="breadcrumb-item active">Reserva #@Model.IdReserva</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-calendar-check text-primary me-2"></i>Reserva #@Model.IdReserva
+        </h2>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="Pagos" asp-action="PorReserva" asp-route-id="@Model.IdReserva" class="btn btn-success shadow-sm">
+            <i class="bi bi-cash-coin me-1"></i> Ver Pagos / Cobrar
+        </a>
+        @if (Model.Estado == "Vigente")
+        {
+            <a asp-action="Renovar" asp-route-id="@Model.IdReserva" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-repeat me-1"></i> Renovar
+            </a>
+            <a asp-action="Terminar" asp-route-id="@Model.IdReserva" class="btn btn-outline-danger">
+                <i class="bi bi-calendar-x me-1"></i> Terminar Anticipadamente
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.IdReserva" class="btn btn-warning">
+                <i class="bi bi-pencil me-1"></i> Editar
+            </a>
+        }
+        @if (User.IsInRole("Administrador"))
+        {
+            <a asp-action="Delete" asp-route-id="@Model.IdReserva" class="btn btn-danger">
+                <i class="bi bi-trash me-1"></i> Anular
+            </a>
+        }
+    </div>
+</div>
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Reserva #@Model.IdReserva</h5>
-                <span class="badge @(Model.Estado == "Vigente" ? "bg-success" : "bg-secondary")">
-                    @Model.Estado
-                </span>
+<!-- Resumen financiero rÃ¡pido -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 bg-white border-start border-4 border-primary">
+            <div class="text-muted small fw-semibold">MONTO PACTADO</div>
+            <div class="fs-4 fw-bold text-primary">$@Model.MontoTotal.ToString("N2")</div>
+            <div class="small text-muted">@Model.CantidadDias noches x $@Model.PrecioPorDia.ToString("N2")</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 bg-white border-start border-4 border-warning">
+            <div class="text-muted small fw-semibold">MULTA APLICADA</div>
+            <div class="fs-4 fw-bold text-warning">$@Model.Multa.ToString("N2")</div>
+            <div class="small text-muted">@(Model.Multa > 0 ? "Por rescisiÃ³n anticipada" : "Sin penalidad")</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 bg-white border-start border-4 border-success">
+            <div class="text-muted small fw-semibold">TOTAL PAGADO</div>
+            <div class="fs-4 fw-bold text-success">$@totalAbonado.ToString("N2")</div>
+            <div class="small text-muted">@((Model.Pagos?.Count(p => p.Estado == "Activo") ?? 0)) pago(s) registrados</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 bg-white border-start border-4 @(saldo <= 0 ? "border-success" : "border-danger")">
+            <div class="text-muted small fw-semibold">SALDO PENDIENTE</div>
+            <div class="fs-4 fw-bold @(saldo <= 0 ? "text-success" : "text-danger")">$@(saldo > 0 ? saldo.ToString("N2") : "0.00")</div>
+            <div class="small @(saldo <= 0 ? "text-success fw-semibold" : "text-muted")">@(saldo <= 0 ? "Cancelada totalmente" : "Saldo adeudado")</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 rounded-3 h-100">
+            <div class="card-header bg-light py-3 fw-bold">
+                <i class="bi bi-info-circle me-2 text-primary"></i>Datos de la EstadÃ­a y PerÃ­odo
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6 class="text-muted border-bottom pb-2">Información del Período y Costo</h6>
-                        <dl class="row">
-                            <dt class="col-sm-5">Fecha Desde</dt>
-                            <dd class="col-sm-7">@Model.FechaDesde.ToString("dd/MM/yyyy")</dd>
+                <dl class="row mb-0">
+                    <dt class="col-sm-5 text-muted">Fecha Desde:</dt>
+                    <dd class="col-sm-7 fw-semibold">@Model.FechaDesde.ToString("dd/MM/yyyy")</dd>
 
-                            <dt class="col-sm-5">Fecha Hasta</dt>
-                            <dd class="col-sm-7">@Model.FechaHasta.ToString("dd/MM/yyyy")</dd>
+                    <dt class="col-sm-5 text-muted">Fecha Hasta:</dt>
+                    <dd class="col-sm-7 fw-semibold">@Model.FechaHasta.ToString("dd/MM/yyyy")</dd>
 
-                            <dt class="col-sm-5">Duración</dt>
-                            <dd class="col-sm-7">@Model.CantidadDias días</dd>
+                    <dt class="col-sm-5 text-muted">DuraciÃ³n Total:</dt>
+                    <dd class="col-sm-7">@Model.CantidadDias dÃ­as</dd>
 
-                            <dt class="col-sm-5">Precio por Día</dt>
-                            <dd class="col-sm-7">@Model.PrecioPorDia.ToString("C")</dd>
+                    <dt class="col-sm-5 text-muted">Precio Diario:</dt>
+                    <dd class="col-sm-7">$@Model.PrecioPorDia.ToString("N2")</dd>
 
-                            <dt class="col-sm-5">Monto Total</dt>
-                            <dd class="col-sm-7"><strong class="text-primary fs-5">@Model.MontoTotal.ToString("C")</strong></dd>
+                    <dt class="col-sm-5 text-muted">Estado Actual:</dt>
+                    <dd class="col-sm-7">
+                        <span class="badge bg-primary">@Model.Estado</span>
+                    </dd>
 
-                            @if(Model.FechaTerminacion.HasValue)
-                            {
-                                <dt class="col-sm-5">Terminación</dt>
-                                <dd class="col-sm-7">@Model.FechaTerminacion.Value.ToString("dd/MM/yyyy")</dd>
+                    @if (Model.FechaTerminacion.HasValue)
+                    {
+                        <dt class="col-sm-5 text-danger">TerminaciÃ³n Efectiva:</dt>
+                        <dd class="col-sm-7 text-danger fw-bold">@Model.FechaTerminacion.Value.ToString("dd/MM/yyyy")</dd>
 
-                                <dt class="col-sm-5">Multa</dt>
-                                <dd class="col-sm-7 text-danger"><strong>@Model.Multa.ToString("C")</strong></dd>
-                            }
-                        </dl>
-                    </div>
+                        <dt class="col-sm-5 text-danger">Multa por RescisiÃ³n:</dt>
+                        <dd class="col-sm-7 text-danger fw-bold">$@Model.Multa.ToString("N2")</dd>
+                    }
 
-                    <div class="col-md-6">
-                        <h6 class="text-muted border-bottom pb-2">Inquilino</h6>
-                        <dl class="row">
-                            <dt class="col-sm-4">Nombre</dt>
-                            <dd class="col-sm-8">@Model.Inquilino?.Nombre @Model.Inquilino?.Apellido</dd>
+                    @if (Model.IdReservaOrigen.HasValue)
+                    {
+                        <dt class="col-sm-5 text-primary">RenovaciÃ³n de:</dt>
+                        <dd class="col-sm-7">
+                            <a asp-action="Details" asp-route-id="@Model.IdReservaOrigen.Value" class="badge bg-info text-dark text-decoration-none">
+                                <i class="bi bi-arrow-return-right me-1"></i>Ver Reserva Original #@Model.IdReservaOrigen.Value
+                            </a>
+                        </dd>
+                    }
+                </dl>
+            </div>
+        </div>
+    </div>
 
-                            <dt class="col-sm-4">DNI</dt>
-                            <dd class="col-sm-8">@Model.Inquilino?.Dni</dd>
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 rounded-3 mb-4">
+            <div class="card-header bg-light py-3 fw-bold">
+                <i class="bi bi-people me-2 text-primary"></i>Inquilino
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted">Nombre:</dt>
+                    <dd class="col-sm-8 fw-semibold">@Model.Inquilino?.Nombre @Model.Inquilino?.Apellido</dd>
 
-                            <dt class="col-sm-4">Teléfono</dt>
-                            <dd class="col-sm-8">@(Model.Inquilino?.Telefono ?? "-")</dd>
+                    <dt class="col-sm-4 text-muted">DNI:</dt>
+                    <dd class="col-sm-8">@Model.Inquilino?.Dni</dd>
 
-                            <dt class="col-sm-4">Email</dt>
-                            <dd class="col-sm-8">@Model.Inquilino?.Email</dd>
-                        </dl>
+                    <dt class="col-sm-4 text-muted">TelÃ©fono:</dt>
+                    <dd class="col-sm-8">@(Model.Inquilino?.Telefono ?? "â€”")</dd>
 
-                        <h6 class="text-muted border-bottom pb-2 mt-3">Inmueble Alquilado</h6>
-                        <dl class="row">
-                            <dt class="col-sm-4">Dirección</dt>
-                            <dd class="col-sm-8"><strong>@Model.Inmueble?.Direccion</strong></dd>
+                    <dt class="col-sm-4 text-muted">Email:</dt>
+                    <dd class="col-sm-8">@Model.Inquilino?.Email</dd>
+                </dl>
+            </div>
+        </div>
 
-                            <dt class="col-sm-4">Tipo</dt>
-                            <dd class="col-sm-8">@Model.Inmueble?.Tipo?.Descripcion</dd>
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-light py-3 fw-bold">
+                <i class="bi bi-building me-2 text-primary"></i>Inmueble Alquilado
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted">DirecciÃ³n:</dt>
+                    <dd class="col-sm-8 fw-semibold">@Model.Inmueble?.Direccion</dd>
 
-                            <dt class="col-sm-4">Propietario</dt>
-                            <dd class="col-sm-8">@Model.Inmueble?.Duenio?.Nombre @Model.Inmueble?.Duenio?.Apellido</dd>
-                        </dl>
-                    </div>
+                    <dt class="col-sm-4 text-muted">Tipo:</dt>
+                    <dd class="col-sm-8">@Model.Inmueble?.Tipo?.Descripcion</dd>
+
+                    <dt class="col-sm-4 text-muted">Capacidad:</dt>
+                    <dd class="col-sm-8">@Model.Inmueble?.Cupo personas</dd>
+
+                    <dt class="col-sm-4 text-muted">Propietario:</dt>
+                    <dd class="col-sm-8">@Model.Inmueble?.Duenio?.Nombre @Model.Inmueble?.Duenio?.Apellido</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (User.IsInRole("Administrador"))
+{
+    <div class="card border-warning shadow-sm mt-4">
+        <div class="card-header bg-warning bg-opacity-25 py-2 fw-bold text-dark">
+            <i class="bi bi-shield-lock-fill text-warning me-2"></i>AuditorÃ­a del Sistema (Exclusivo Administradores)
+        </div>
+        <div class="card-body py-3">
+            <div class="row">
+                <div class="col-md-6">
+                    <small class="text-muted d-block">Usuario que RegistrÃ³ la Reserva:</small>
+                    <strong>@(Model.UsuarioCreador != null ? $"{Model.UsuarioCreador.Nombre} {Model.UsuarioCreador.Apellido} ({Model.UsuarioCreador.Email})" : "No registrado / Semilla")</strong>
                 </div>
-
-                <div class="mt-4 pt-3 border-top d-flex gap-2">
-                    <a asp-action="Edit" asp-route-id="@Model.IdReserva" class="btn btn-warning">Editar Reserva</a>
-                    <a asp-action="Index" class="btn btn-secondary">Volver al Listado</a>
+                <div class="col-md-6">
+                    <small class="text-muted d-block">Usuario que TerminÃ³ Anticipadamente:</small>
+                    <strong>@(Model.UsuarioTerminador != null ? $"{Model.UsuarioTerminador.Nombre} {Model.UsuarioTerminador.Apellido} ({Model.UsuarioTerminador.Email})" : "No finalizada o regular")</strong>
                 </div>
             </div>
         </div>
     </div>
+}
+
+<div class="mt-4">
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Volver al Listado
+    </a>
 </div>

@@ -1,4 +1,4 @@
-namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
+﻿namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
 {
     public class ListaPaginada<T>
     {
@@ -8,5 +8,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public int Total { get; set; }
         public string Filtro { get; set; } = "";
         public int TotalPaginas => Tamano == 0 ? 1 : (int)Math.Ceiling(Total / (double)Tamano);
+        public bool TienePaginaAnterior => Pagina > 1;
+        public bool TienePaginaSiguiente => Pagina < TotalPaginas;
     }
 }

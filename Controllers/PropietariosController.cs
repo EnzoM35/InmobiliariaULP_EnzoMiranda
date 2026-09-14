@@ -1,8 +1,10 @@
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models;
 
 namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Controllers
 {
+    [Authorize]
     public class PropietariosController : Controller
     {
         private readonly IRepositorioPropietario _repositorio;
@@ -91,6 +93,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Controllers
         }
 
         // GET: Propietarios/Delete/5
+        [Authorize(Roles = "Administrador")]
         public ActionResult Delete(int id)
         {
             var propietario = _repositorio.ObtenerPorId(id);
@@ -104,6 +107,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Controllers
         // POST: Propietarios/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrador")]
         public ActionResult Delete(int id, IFormCollection collection)
         {
             try
@@ -119,3 +123,4 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Controllers
         }
     }
 }
+

@@ -1,0 +1,76 @@
+﻿@model Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Pago
+
+@{
+    ViewData["Title"] = $"Editar Concepto - Pago #{Model.NumeroPago}";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-warning text-dark py-3">
+                <h4 class="mb-0 fw-bold"><i class="bi bi-pencil-square me-2"></i>Modificar Concepto de Pago</h4>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+                    <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                    <div>
+                        <strong>Regla de negocio:</strong> Por razones de integridad financiera, en la ediciÃ³n Ãºnicamente se permite modificar el <strong>Concepto</strong> del pago. El importe, nÃºmero y fechas permanecen inalterables.
+                    </div>
+                </div>
+
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="IdPago" />
+                    <input type="hidden" asp-for="IdReserva" />
+                    <input type="hidden" asp-for="NumeroPago" />
+                    <input type="hidden" asp-for="Importe" />
+                    <input type="hidden" asp-for="FechaPago" />
+                    <input type="hidden" asp-for="Estado" />
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3" role="alert"></div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Reserva Asociada</label>
+                            <input class="form-control bg-light" value="Reserva #@Model.IdReserva" readonly />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">NÂ° de Pago</label>
+                            <input class="form-control bg-light" value="#@Model.NumeroPago" readonly />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Fecha Registrada</label>
+                            <input class="form-control bg-light" value="@Model.FechaPago.ToString("dd/MM/yyyy HH:mm")" readonly />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Importe Cobrado</label>
+                            <input class="form-control bg-light fw-bold text-success" value="$@Model.Importe.ToString("N2")" readonly />
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Concepto" class="form-label fw-bold text-dark"></label>
+                        <input asp-for="Concepto" class="form-control form-control-lg border-primary" />
+                        <span asp-validation-for="Concepto" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Details" asp-route-id="@Model.IdPago" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-warning px-4 shadow-sm fw-semibold">
+                            <i class="bi bi-save me-1"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
