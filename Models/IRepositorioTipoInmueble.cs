@@ -7,5 +7,6 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         int Modificacion(TipoInmueble tipo);
         TipoInmueble? ObtenerPorId(int id);
         IList<TipoInmueble> ObtenerTodos();
+        ListaPaginada<TipoInmueble> ObtenerPaginado(string? filtro, int pagina, int tamano = 5);
     }
 }

@@ -7,5 +7,6 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         int Modificacion(Propietario propietario);
         Propietario? ObtenerPorId(int id);
         IList<Propietario> ObtenerTodos();
+        ListaPaginada<Propietario> ObtenerPaginado(string? filtro, int pagina, int tamano = 5);
     }
 }

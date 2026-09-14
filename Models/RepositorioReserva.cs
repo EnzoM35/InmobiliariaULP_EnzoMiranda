@@ -1,21 +1,15 @@
-using MySqlConnector;
+﻿using MySqlConnector;
 
 namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
 {
-    public class RepositorioReserva : IRepositorioReserva
+    public class RepositorioReserva : RepositorioBase, IRepositorioReserva
     {
-        private readonly string _connectionString;
-
-        public RepositorioReserva(IConfiguration configuration)
-        {
-            _connectionString = configuration.GetConnectionString("DefaultConnection") 
-                ?? throw new InvalidOperationException("La cadena de conexión 'DefaultConnection' no fue encontrada.");
-        }
+        public RepositorioReserva(IConfiguration configuration) : base(configuration) { }
 
         public int Alta(Reserva reserva)
         {
             int res = -1;
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = @"INSERT INTO Reservas 
                                (IdInquilino, IdInmueble, FechaDesde, FechaHasta, PrecioPorDia, MontoTotal, FechaTerminacion, Multa, Estado, Activo) 
@@ -47,7 +41,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public int Baja(int id)
         {
             int res = -1;
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = "UPDATE Reservas SET Activo = 0, Estado = 'Anulada' WHERE IdReserva = @id";
                 using (MySqlCommand command = new MySqlCommand(sql, connection))
@@ -63,7 +57,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public int Modificacion(Reserva reserva)
         {
             int res = -1;
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = @"UPDATE Reservas 
                                SET IdInquilino = @idInquilino,
@@ -100,7 +94,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public Reserva? ObtenerPorId(int id)
         {
             Reserva? reserva = null;
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = @"SELECT r.IdReserva, r.IdInquilino, r.IdInmueble, r.FechaDesde, r.FechaHasta, 
                                       r.PrecioPorDia, r.MontoTotal, r.FechaTerminacion, r.Multa, r.Estado, r.Activo,
@@ -136,7 +130,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public IList<Reserva> ObtenerTodos()
         {
             var res = new List<Reserva>();
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = @"SELECT r.IdReserva, r.IdInquilino, r.IdInmueble, r.FechaDesde, r.FechaHasta, 
                                       r.PrecioPorDia, r.MontoTotal, r.FechaTerminacion, r.Multa, r.Estado, r.Activo,
@@ -172,7 +166,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public IList<Reserva> ObtenerPorInmueble(int idInmueble)
         {
             var res = new List<Reserva>();
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = @"SELECT r.IdReserva, r.IdInquilino, r.IdInmueble, r.FechaDesde, r.FechaHasta, 
                                       r.PrecioPorDia, r.MontoTotal, r.FechaTerminacion, r.Multa, r.Estado, r.Activo,
@@ -209,7 +203,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public IList<Reserva> ObtenerPorInquilino(int idInquilino)
         {
             var res = new List<Reserva>();
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = @"SELECT r.IdReserva, r.IdInquilino, r.IdInmueble, r.FechaDesde, r.FechaHasta, 
                                       r.PrecioPorDia, r.MontoTotal, r.FechaTerminacion, r.Multa, r.Estado, r.Activo,
@@ -245,7 +239,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
 
         public bool ExisteSuperposicion(int idInmueble, DateTime desde, DateTime hasta, int? idReservaExcluir = null)
         {
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = @"SELECT COUNT(*) 
                                FROM Reservas 
@@ -278,7 +272,43 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
             }
         }
 
-        private Reserva MapFromReader(MySqlDataReader reader)
+                public ListaPaginada<Reserva> ObtenerPaginado(string? filtro, int pagina, int tamano = 5)
+        {
+            string fromWhere = @"FROM Reservas r
+                                 INNER JOIN Inquilinos iq ON r.IdInquilino = iq.IdInquilino
+                                 INNER JOIN Inmuebles im ON r.IdInmueble = im.IdInmueble
+                                 INNER JOIN Propietarios p ON im.IdPropietario = p.IdPropietario
+                                 INNER JOIN TiposInmueble t ON im.IdTipoInmueble = t.IdTipoInmueble
+                                 WHERE r.Activo = 1";
+            if (!string.IsNullOrWhiteSpace(filtro))
+            {
+                fromWhere += " AND (iq.Nombre LIKE @filtro OR iq.Apellido LIKE @filtro OR im.Direccion LIKE @filtro OR r.Estado LIKE @filtro)";
+            }
+
+            return ConsultarPaginado(
+                @"SELECT r.IdReserva, r.IdInquilino, r.IdInmueble, r.FechaDesde, r.FechaHasta, 
+                         r.PrecioPorDia, r.MontoTotal, r.FechaTerminacion, r.Multa, r.Estado, r.Activo,
+                         iq.Nombre AS InquilinoNombre, iq.Apellido AS InquilinoApellido, iq.Dni AS InquilinoDni,
+                         iq.Telefono AS InquilinoTelefono, iq.Email AS InquilinoEmail,
+                         im.Direccion AS InmuebleDireccion, im.PrecioDia AS InmueblePrecioDia,
+                         im.Cupo AS InmuebleCupo, im.Disponible AS InmuebleDisponible,
+                         p.Nombre AS DuenioNombre, p.Apellido AS DuenioApellido,
+                         t.Descripcion AS TipoDescripcion",
+                fromWhere,
+                "ORDER BY r.FechaDesde DESC",
+                cmd =>
+                {
+                    if (!string.IsNullOrWhiteSpace(filtro))
+                    {
+                        cmd.Parameters.AddWithValue("@filtro", "%" + filtro.Trim() + "%");
+                    }
+                },
+                MapFromReader,
+                filtro,
+                pagina,
+                tamano);
+        }
+private Reserva MapFromReader(MySqlDataReader reader)
         {
             return new Reserva
             {

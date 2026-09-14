@@ -2,25 +2,21 @@ using MySqlConnector;
 
 namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
 {
-    public class RepositorioPropietario : IRepositorioPropietario
+    public class RepositorioPropietario : RepositorioBase, IRepositorioPropietario
     {
-        private readonly string _connectionString;
-
-        public RepositorioPropietario(IConfiguration configuration)
+        public RepositorioPropietario(IConfiguration configuration) : base(configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection") 
-                ?? throw new InvalidOperationException("La cadena de conexión 'DefaultConnection' no fue encontrada.");
         }
 
         public int Alta(Propietario propietario)
         {
             int res = -1;
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
-                string sql = @"INSERT INTO Propietarios (Nombre, Apellido, Dni, Telefono, Email, Clave) 
-                               VALUES (@nombre, @apellido, @dni, @telefono, @email, @clave);
+                string sql = @"INSERT INTO Propietarios (Nombre, Apellido, Dni, Telefono, Email)
+                               VALUES (@nombre, @apellido, @dni, @telefono, @email);
                                SELECT LAST_INSERT_ID();";
-                
+
                 using (MySqlCommand command = new MySqlCommand(sql, connection))
                 {
                     command.CommandType = System.Data.CommandType.Text;
@@ -29,7 +25,6 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
                     command.Parameters.AddWithValue("@dni", propietario.Dni);
                     command.Parameters.AddWithValue("@telefono", propietario.Telefono ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@email", propietario.Email);
-                    command.Parameters.AddWithValue("@clave", propietario.Clave);
 
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
@@ -42,7 +37,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public int Baja(int id)
         {
             int res = -1;
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = "UPDATE Propietarios SET Activo = 0 WHERE IdPropietario = @id";
                 using (MySqlCommand command = new MySqlCommand(sql, connection))
@@ -58,13 +53,13 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public int Modificacion(Propietario propietario)
         {
             int res = -1;
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
-                string sql = @"UPDATE Propietarios 
-                               SET Nombre = @nombre, Apellido = @apellido, Dni = @dni, 
-                                   Telefono = @telefono, Email = @email, Clave = @clave 
+                string sql = @"UPDATE Propietarios
+                               SET Nombre = @nombre, Apellido = @apellido, Dni = @dni,
+                                   Telefono = @telefono, Email = @email
                                WHERE IdPropietario = @id";
-                
+
                 using (MySqlCommand command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@nombre", propietario.Nombre);
@@ -72,7 +67,6 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
                     command.Parameters.AddWithValue("@dni", propietario.Dni);
                     command.Parameters.AddWithValue("@telefono", propietario.Telefono ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@email", propietario.Email);
-                    command.Parameters.AddWithValue("@clave", propietario.Clave);
                     command.Parameters.AddWithValue("@id", propietario.IdPropietario);
 
                     connection.Open();
@@ -85,9 +79,9 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public Propietario? ObtenerPorId(int id)
         {
             Propietario? p = null;
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
-                string sql = "SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave FROM Propietarios WHERE IdPropietario = @id AND Activo = 1";
+                string sql = "SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email FROM Propietarios WHERE IdPropietario = @id AND Activo = 1";
                 using (MySqlCommand command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@id", id);
@@ -96,16 +90,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
                     {
                         if (reader.Read())
                         {
-                            p = new Propietario
-                            {
-                                IdPropietario = reader.GetInt32(0),
-                                Nombre = reader.GetString(1),
-                                Apellido = reader.GetString(2),
-                                Dni = reader.GetString(3),
-                                Telefono = reader.IsDBNull(4) ? null : reader.GetString(4),
-                                Email = reader.GetString(5),
-                                Clave = reader.GetString(6)
-                            };
+                            p = MapFromReader(reader);
                         }
                     }
                 }
@@ -116,9 +101,9 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public IList<Propietario> ObtenerTodos()
         {
             var res = new List<Propietario>();
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
-                string sql = "SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave FROM Propietarios WHERE Activo = 1";
+                string sql = "SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email FROM Propietarios WHERE Activo = 1";
                 using (MySqlCommand command = new MySqlCommand(sql, connection))
                 {
                     connection.Open();
@@ -126,21 +111,50 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
                     {
                         while (reader.Read())
                         {
-                            res.Add(new Propietario
-                            {
-                                IdPropietario = reader.GetInt32(0),
-                                Nombre = reader.GetString(1),
-                                Apellido = reader.GetString(2),
-                                Dni = reader.GetString(3),
-                                Telefono = reader.IsDBNull(4) ? null : reader.GetString(4),
-                                Email = reader.GetString(5),
-                                Clave = reader.GetString(6)
-                            });
+                            res.Add(MapFromReader(reader));
                         }
                     }
                 }
             }
             return res;
+        }
+
+        public ListaPaginada<Propietario> ObtenerPaginado(string? filtro, int pagina, int tamano = 5)
+        {
+            string fromWhere = "FROM Propietarios WHERE Activo = 1";
+            if (!string.IsNullOrWhiteSpace(filtro))
+            {
+                fromWhere += " AND (Nombre LIKE @filtro OR Apellido LIKE @filtro OR Dni LIKE @filtro OR Email LIKE @filtro)";
+            }
+
+            return ConsultarPaginado(
+                "SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email",
+                fromWhere,
+                "ORDER BY Apellido, Nombre",
+                cmd =>
+                {
+                    if (!string.IsNullOrWhiteSpace(filtro))
+                    {
+                        cmd.Parameters.AddWithValue("@filtro", "%" + filtro.Trim() + "%");
+                    }
+                },
+                MapFromReader,
+                filtro,
+                pagina,
+                tamano);
+        }
+
+        private static Propietario MapFromReader(MySqlDataReader reader)
+        {
+            return new Propietario
+            {
+                IdPropietario = reader.GetInt32("IdPropietario"),
+                Nombre = reader.GetString("Nombre"),
+                Apellido = reader.GetString("Apellido"),
+                Dni = reader.GetString("Dni"),
+                Telefono = reader.IsDBNull(reader.GetOrdinal("Telefono")) ? null : reader.GetString("Telefono"),
+                Email = reader.GetString("Email")
+            };
         }
     }
 }

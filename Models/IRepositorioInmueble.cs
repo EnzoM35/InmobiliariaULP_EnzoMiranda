@@ -9,5 +9,6 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         IList<Inmueble> ObtenerTodos();
         IList<Inmueble> ObtenerDisponibles();
         IList<Inmueble> ObtenerPorPropietario(int idPropietario);
+        ListaPaginada<Inmueble> ObtenerPaginado(string? filtro, int pagina, int tamano = 5);
     }
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models;
 
 namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Controllers
@@ -62,11 +62,6 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Controllers
         {
             try
             {
-                if (reserva.FechaDesde < DateTime.Today)
-                {
-                    ModelState.AddModelError("FechaDesde", "La fecha de inicio no puede ser anterior a la fecha actual.");
-                }
-
                 if (reserva.FechaHasta <= reserva.FechaDesde)
                 {
                     ModelState.AddModelError("FechaHasta", "La fecha de fin debe ser posterior a la fecha de inicio.");
@@ -79,12 +74,20 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    var inm = _repoInmueble.ObtenerPorId(reserva.IdInmueble);
-                    if (inm != null)
+                    // Obtener precio por día del inmueble si no se especificó o para asegurar valor base
+                    if (reserva.PrecioPorDia <= 0)
                     {
-                        reserva.PrecioPorDia = inm.PrecioDia;
-                        int dias = (reserva.FechaHasta - reserva.FechaDesde).Days;
-                        if (dias <= 0) dias = 1;
+                        var inm = _repoInmueble.ObtenerPorId(reserva.IdInmueble);
+                        if (inm != null)
+                        {
+                            reserva.PrecioPorDia = inm.PrecioDia;
+                        }
+                    }
+
+                    int dias = (reserva.FechaHasta - reserva.FechaDesde).Days;
+                    if (dias <= 0) dias = 1;
+                    if (reserva.MontoTotal <= 0)
+                    {
                         reserva.MontoTotal = reserva.PrecioPorDia * dias;
                     }
 
@@ -95,15 +98,9 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Controllers
                 CargarSelects();
                 return View(reserva);
             }
-            catch (MySqlConnector.MySqlException)
+            catch (Exception ex)
             {
-                ViewBag.Error = "Error al guardar la reserva en la base de datos. Verifique los datos ingresados.";
-                CargarSelects();
-                return View(reserva);
-            }
-            catch (Exception)
-            {
-                ViewBag.Error = "OcurriÃ³ un error inesperado al procesar la reserva.";
+                ViewBag.Error = ex.Message;
                 CargarSelects();
                 return View(reserva);
             }
@@ -141,12 +138,10 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Controllers
                 if (ModelState.IsValid)
                 {
                     reserva.IdReserva = id;
-                    var inm = _repoInmueble.ObtenerPorId(reserva.IdInmueble);
-                    if (inm != null)
+                    int dias = (reserva.FechaHasta - reserva.FechaDesde).Days;
+                    if (dias <= 0) dias = 1;
+                    if (reserva.MontoTotal <= 0)
                     {
-                        reserva.PrecioPorDia = inm.PrecioDia;
-                        int dias = (reserva.FechaHasta - reserva.FechaDesde).Days;
-                        if (dias <= 0) dias = 1;
                         reserva.MontoTotal = reserva.PrecioPorDia * dias;
                     }
 
@@ -157,15 +152,9 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Controllers
                 CargarSelects();
                 return View(reserva);
             }
-            catch (MySqlConnector.MySqlException)
+            catch (Exception ex)
             {
-                ViewBag.Error = "Error en la base de datos al actualizar la reserva.";
-                CargarSelects();
-                return View(reserva);
-            }
-            catch (Exception)
-            {
-                ViewBag.Error = "OcurriÃ³ un error inesperado al actualizar la reserva.";
+                ViewBag.Error = ex.Message;
                 CargarSelects();
                 return View(reserva);
             }

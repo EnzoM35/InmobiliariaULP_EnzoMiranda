@@ -33,12 +33,10 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         [Display(Name = "Fecha Hasta")]
         public DateTime FechaHasta { get; set; } = DateTime.Today.AddDays(1);
 
-        [Required(ErrorMessage = "El precio por día es obligatorio")]
         [DataType(DataType.Currency)]
         [Display(Name = "Precio por Día")]
         public decimal PrecioPorDia { get; set; }
 
-        [Required(ErrorMessage = "El monto total es obligatorio")]
         [DataType(DataType.Currency)]
         [Display(Name = "Monto Total")]
         public decimal MontoTotal { get; set; }

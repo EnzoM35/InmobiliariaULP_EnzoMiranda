@@ -1,4 +1,4 @@
-﻿# Proyecto Inmobiliaria
+# Proyecto Inmobiliaria
 
 > Aplicación web para la gestión de reservas temporales de una inmobiliaria, desarrollada con **ASP.NET Core MVC** y **ADO.NET (MySqlConnector)**.
 
@@ -151,5 +151,5 @@ erDiagram
 * **Propietarios:** ABM completo y listado.
 * **Inquilinos:** ABM completo y listado.
 * **Tipos de Inmueble:** ABM completo y vista de detalles.
-* **Inmuebles:** ABM completo, filtrado, registro de ruta o URL de portada, coordenadas/mapa y vista detallada.
+* **Inmuebles:** ABM completo, filtrado, subida de portada, coordenadas/mapa y vista detallada.
 * **Reservas:** ABM completo, cálculo automático de importes por estadía, validación de fechas/inmuebles disponibles y vista detallada.

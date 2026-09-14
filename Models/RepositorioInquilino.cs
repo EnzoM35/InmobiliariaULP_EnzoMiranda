@@ -2,25 +2,21 @@ using MySqlConnector;
 
 namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
 {
-    public class RepositorioInquilino : IRepositorioInquilino
+    public class RepositorioInquilino : RepositorioBase, IRepositorioInquilino
     {
-        private readonly string _connectionString;
-
-        public RepositorioInquilino(IConfiguration configuration)
+        public RepositorioInquilino(IConfiguration configuration) : base(configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection") 
-                ?? throw new InvalidOperationException("La cadena de conexión 'DefaultConnection' no fue encontrada.");
         }
 
         public int Alta(Inquilino inquilino)
         {
             int res = -1;
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
-                string sql = @"INSERT INTO Inquilinos (Nombre, Apellido, Dni, Telefono, Email) 
+                string sql = @"INSERT INTO Inquilinos (Nombre, Apellido, Dni, Telefono, Email)
                                VALUES (@nombre, @apellido, @dni, @telefono, @email);
                                SELECT LAST_INSERT_ID();";
-                
+
                 using (MySqlCommand command = new MySqlCommand(sql, connection))
                 {
                     command.CommandType = System.Data.CommandType.Text;
@@ -41,7 +37,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public int Baja(int id)
         {
             int res = -1;
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = "UPDATE Inquilinos SET Activo = 0 WHERE IdInquilino = @id";
                 using (MySqlCommand command = new MySqlCommand(sql, connection))
@@ -57,13 +53,13 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public int Modificacion(Inquilino inquilino)
         {
             int res = -1;
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
-                string sql = @"UPDATE Inquilinos 
-                               SET Nombre = @nombre, Apellido = @apellido, Dni = @dni, 
-                                   Telefono = @telefono, Email = @email 
+                string sql = @"UPDATE Inquilinos
+                               SET Nombre = @nombre, Apellido = @apellido, Dni = @dni,
+                                   Telefono = @telefono, Email = @email
                                WHERE IdInquilino = @id";
-                
+
                 using (MySqlCommand command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@nombre", inquilino.Nombre);
@@ -83,7 +79,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public Inquilino? ObtenerPorId(int id)
         {
             Inquilino? i = null;
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = "SELECT IdInquilino, Nombre, Apellido, Dni, Telefono, Email FROM Inquilinos WHERE IdInquilino = @id AND Activo = 1";
                 using (MySqlCommand command = new MySqlCommand(sql, connection))
@@ -94,15 +90,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
                     {
                         if (reader.Read())
                         {
-                            i = new Inquilino
-                            {
-                                IdInquilino = reader.GetInt32(0),
-                                Nombre = reader.GetString(1),
-                                Apellido = reader.GetString(2),
-                                Dni = reader.GetString(3),
-                                Telefono = reader.IsDBNull(4) ? null : reader.GetString(4),
-                                Email = reader.GetString(5)
-                            };
+                            i = MapFromReader(reader);
                         }
                     }
                 }
@@ -113,7 +101,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public IList<Inquilino> ObtenerTodos()
         {
             var res = new List<Inquilino>();
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = "SELECT IdInquilino, Nombre, Apellido, Dni, Telefono, Email FROM Inquilinos WHERE Activo = 1";
                 using (MySqlCommand command = new MySqlCommand(sql, connection))
@@ -123,20 +111,50 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
                     {
                         while (reader.Read())
                         {
-                            res.Add(new Inquilino
-                            {
-                                IdInquilino = reader.GetInt32(0),
-                                Nombre = reader.GetString(1),
-                                Apellido = reader.GetString(2),
-                                Dni = reader.GetString(3),
-                                Telefono = reader.IsDBNull(4) ? null : reader.GetString(4),
-                                Email = reader.GetString(5)
-                            });
+                            res.Add(MapFromReader(reader));
                         }
                     }
                 }
             }
             return res;
+        }
+
+        public ListaPaginada<Inquilino> ObtenerPaginado(string? filtro, int pagina, int tamano = 5)
+        {
+            string fromWhere = "FROM Inquilinos WHERE Activo = 1";
+            if (!string.IsNullOrWhiteSpace(filtro))
+            {
+                fromWhere += " AND (Nombre LIKE @filtro OR Apellido LIKE @filtro OR Dni LIKE @filtro OR Email LIKE @filtro)";
+            }
+
+            return ConsultarPaginado(
+                "SELECT IdInquilino, Nombre, Apellido, Dni, Telefono, Email",
+                fromWhere,
+                "ORDER BY Apellido, Nombre",
+                cmd =>
+                {
+                    if (!string.IsNullOrWhiteSpace(filtro))
+                    {
+                        cmd.Parameters.AddWithValue("@filtro", "%" + filtro.Trim() + "%");
+                    }
+                },
+                MapFromReader,
+                filtro,
+                pagina,
+                tamano);
+        }
+
+        private static Inquilino MapFromReader(MySqlDataReader reader)
+        {
+            return new Inquilino
+            {
+                IdInquilino = reader.GetInt32("IdInquilino"),
+                Nombre = reader.GetString("Nombre"),
+                Apellido = reader.GetString("Apellido"),
+                Dni = reader.GetString("Dni"),
+                Telefono = reader.IsDBNull(reader.GetOrdinal("Telefono")) ? null : reader.GetString("Telefono"),
+                Email = reader.GetString("Email")
+            };
         }
     }
 }

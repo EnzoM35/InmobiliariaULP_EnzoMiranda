@@ -10,5 +10,6 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         IList<Reserva> ObtenerPorInmueble(int idInmueble);
         IList<Reserva> ObtenerPorInquilino(int idInquilino);
         bool ExisteSuperposicion(int idInmueble, DateTime desde, DateTime hasta, int? idReservaExcluir = null);
+        ListaPaginada<Reserva> ObtenerPaginado(string? filtro, int pagina, int tamano = 5);
     }
 }

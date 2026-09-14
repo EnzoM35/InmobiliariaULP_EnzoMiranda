@@ -39,8 +39,10 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         [Display(Name = "Disponible")]
         public bool Disponible { get; set; } = true;
 
-        [Display(Name = "Imagen de Portada")]
+        [Display(Name = "Ruta de portada")]
         public string? Portada { get; set; }
+
+        public IList<ImagenInmueble> Imagenes { get; set; } = new List<ImagenInmueble>();
 
         [Required(ErrorMessage = "Debe seleccionar un tipo de inmueble")]
         [Display(Name = "Tipo de Inmueble")]

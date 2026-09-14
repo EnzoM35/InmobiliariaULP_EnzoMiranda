@@ -1,21 +1,15 @@
-using MySqlConnector;
+﻿using MySqlConnector;
 
 namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
 {
-    public class RepositorioInmueble : IRepositorioInmueble
+    public class RepositorioInmueble : RepositorioBase, IRepositorioInmueble
     {
-        private readonly string _connectionString;
-
-        public RepositorioInmueble(IConfiguration configuration)
-        {
-            _connectionString = configuration.GetConnectionString("DefaultConnection") 
-                ?? throw new InvalidOperationException("La cadena de conexión 'DefaultConnection' no fue encontrada.");
-        }
+        public RepositorioInmueble(IConfiguration configuration) : base(configuration) { }
 
         public int Alta(Inmueble inmueble)
         {
             int res = -1;
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = @"INSERT INTO Inmuebles 
                                (Direccion, Cupo, Latitud, Longitud, PrecioDia, PorcentajeReserva, Disponible, Portada, IdTipoInmueble, IdPropietario, Activo) 
@@ -48,7 +42,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public int Baja(int id)
         {
             int res = -1;
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = "UPDATE Inmuebles SET Activo = 0 WHERE IdInmueble = @id";
                 using (MySqlCommand command = new MySqlCommand(sql, connection))
@@ -64,7 +58,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public int Modificacion(Inmueble inmueble)
         {
             int res = -1;
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = @"UPDATE Inmuebles 
                                SET Direccion = @direccion,
@@ -103,7 +97,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public Inmueble? ObtenerPorId(int id)
         {
             Inmueble? inmueble = null;
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = @"SELECT i.IdInmueble, i.Direccion, i.Cupo, i.Latitud, i.Longitud, i.PrecioDia, 
                                       i.PorcentajeReserva, i.Disponible, i.Portada, i.IdTipoInmueble, i.IdPropietario, i.Activo,
@@ -134,7 +128,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public IList<Inmueble> ObtenerTodos()
         {
             var res = new List<Inmueble>();
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = @"SELECT i.IdInmueble, i.Direccion, i.Cupo, i.Latitud, i.Longitud, i.PrecioDia, 
                                       i.PorcentajeReserva, i.Disponible, i.Portada, i.IdTipoInmueble, i.IdPropietario, i.Activo,
@@ -164,7 +158,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public IList<Inmueble> ObtenerDisponibles()
         {
             var res = new List<Inmueble>();
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = @"SELECT i.IdInmueble, i.Direccion, i.Cupo, i.Latitud, i.Longitud, i.PrecioDia, 
                                       i.PorcentajeReserva, i.Disponible, i.Portada, i.IdTipoInmueble, i.IdPropietario, i.Activo,
@@ -194,7 +188,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public IList<Inmueble> ObtenerPorPropietario(int idPropietario)
         {
             var res = new List<Inmueble>();
-            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string sql = @"SELECT i.IdInmueble, i.Direccion, i.Cupo, i.Latitud, i.Longitud, i.PrecioDia, 
                                       i.PorcentajeReserva, i.Disponible, i.Portada, i.IdTipoInmueble, i.IdPropietario, i.Activo,
@@ -222,7 +216,38 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
             return res;
         }
 
-        private Inmueble MapFromReader(MySqlDataReader reader)
+                public ListaPaginada<Inmueble> ObtenerPaginado(string? filtro, int pagina, int tamano = 5)
+        {
+            string fromWhere = @"FROM Inmuebles i
+                                 INNER JOIN TiposInmueble t ON i.IdTipoInmueble = t.IdTipoInmueble
+                                 INNER JOIN Propietarios p ON i.IdPropietario = p.IdPropietario
+                                 WHERE i.Activo = 1";
+            if (!string.IsNullOrWhiteSpace(filtro))
+            {
+                fromWhere += " AND (i.Direccion LIKE @filtro OR t.Descripcion LIKE @filtro OR p.Nombre LIKE @filtro OR p.Apellido LIKE @filtro)";
+            }
+
+            return ConsultarPaginado(
+                @"SELECT i.IdInmueble, i.Direccion, i.Cupo, i.Latitud, i.Longitud, i.PrecioDia, 
+                         i.PorcentajeReserva, i.Disponible, i.Portada, i.IdTipoInmueble, i.IdPropietario, i.Activo,
+                         t.Descripcion AS TipoDescripcion,
+                         p.Nombre AS PropietarioNombre, p.Apellido AS PropietarioApellido, p.Dni AS PropietarioDni,
+                         p.Telefono AS PropietarioTelefono, p.Email AS PropietarioEmail",
+                fromWhere,
+                "ORDER BY i.Direccion",
+                cmd =>
+                {
+                    if (!string.IsNullOrWhiteSpace(filtro))
+                    {
+                        cmd.Parameters.AddWithValue("@filtro", "%" + filtro.Trim() + "%");
+                    }
+                },
+                MapFromReader,
+                filtro,
+                pagina,
+                tamano);
+        }
+private Inmueble MapFromReader(MySqlDataReader reader)
         {
             return new Inmueble
             {
