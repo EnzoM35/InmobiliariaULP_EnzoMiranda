@@ -1,4 +1,4 @@
-using MySqlConnector;
+﻿using MySqlConnector;
 
 namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
 {

@@ -1,4 +1,4 @@
-namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models;
+﻿namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models;
 
 public class ErrorViewModel
 {

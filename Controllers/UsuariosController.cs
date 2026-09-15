@@ -42,7 +42,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Controllers
             var usuario = _repoUsuario.ObtenerPorEmail(model.Email);
             if (usuario == null || !PasswordHasher.Verify(model.Password, usuario.PasswordHash))
             {
-                ModelState.AddModelError("", "Correo o contraseÃ±a incorrectos.");
+                ModelState.AddModelError("", "Correo o contraseña incorrectos.");
                 return View(model);
             }
 
@@ -179,7 +179,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Controllers
         }
 
         // ==========================================
-        // GESTIÃ“N DE USUARIOS (Solo Administrador)
+        // GESTIÓN DE USUARIOS (Solo Administrador)
         // ==========================================
         [Authorize(Policy = "Administrador")]
         public IActionResult Index(string? filtro, int pagina = 1)
@@ -209,7 +209,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Controllers
         {
             if (string.IsNullOrWhiteSpace(usuario.Password))
             {
-                ModelState.AddModelError("Password", "La contraseÃ±a es obligatoria.");
+                ModelState.AddModelError("Password", "La contraseña es obligatoria.");
             }
 
             if (ModelState.IsValid)

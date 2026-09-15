@@ -1,0 +1,813 @@
+﻿@{
+    ViewData["Title"] = "Panel de Informes y Estadísticas";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0 text-dark"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Centro de Informes y Estadísticas</h2>
+        <p class="text-muted small mb-0">Consultas analíticas, disponibilidad, vencimientos y métricas operativas de la inmobiliaria</p>
+    </div>
+</div>
+
+<!-- Pestañas de Selección de los 8 Informes -->
+<ul class="nav nav-pills mb-4 gap-2 flex-wrap bg-white p-3 rounded-3 shadow-sm border" id="informesTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active fw-semibold" id="tab1-btn" data-bs-toggle="pill" data-bs-target="#tab1" type="button" role="tab">
+            <i class="bi bi-building me-1"></i> 1. Por Disponibilidad
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-semibold" id="tab2-btn" data-bs-toggle="pill" data-bs-target="#tab2" type="button" role="tab">
+            <i class="bi bi-person-badge me-1"></i> 2. Por Propietario
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-semibold" id="tab3-btn" data-bs-toggle="pill" data-bs-target="#tab3" type="button" role="tab">
+            <i class="bi bi-trophy me-1 text-warning"></i> 3. Más Reservados (365d)
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-semibold" id="tab4-btn" data-bs-toggle="pill" data-bs-target="#tab4" type="button" role="tab">
+            <i class="bi bi-clock-history me-1"></i> 4. Sin Reservas (X días)
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-semibold" id="tab5-btn" data-bs-toggle="pill" data-bs-target="#tab5" type="button" role="tab">
+            <i class="bi bi-calendar-check me-1 text-success"></i> 5. Reservas Vigentes
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-semibold" id="tab6-btn" data-bs-toggle="pill" data-bs-target="#tab6" type="button" role="tab">
+            <i class="bi bi-hourglass-split me-1 text-danger"></i> 6. Próximas a Vencer
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-semibold" id="tab7-btn" data-bs-toggle="pill" data-bs-target="#tab7" type="button" role="tab">
+            <i class="bi bi-cash-coin me-1 text-success"></i> 7. Pagos por Reserva
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-semibold" id="tab8-btn" data-bs-toggle="pill" data-bs-target="#tab8" type="button" role="tab">
+            <i class="bi bi-search me-1 text-primary"></i> 8. Libres entre Fechas
+        </button>
+    </li>
+</ul>
+
+<!-- Contenido de Cada Informe -->
+<div class="tab-content" id="informesTabContent">
+
+    <!-- ========================================== -->
+    <!-- INFORME 1: Inmuebles y dueños por disponibilidad -->
+    <!-- ========================================== -->
+    <div class="tab-pane fade show active" id="tab1" role="tabpanel">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-building text-primary me-2"></i>Informe 1: Inmuebles y sus Dueños</h5>
+                <p class="text-muted small mb-0">Listado de propiedades registradas con datos de su propietario y filtro de disponibilidad operativa.</p>
+            </div>
+            <div class="card-body border-top bg-light p-3">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold text-muted">Filtrar por Disponibilidad Operativa:</label>
+                        <select id="filtro1_disp" class="form-select">
+                            <option value="">Todos los Inmuebles (Disponibles y No Disponibles)</option>
+                            <option value="true" selected>Solo Disponibles (En oferta)</option>
+                            <option value="false">Solo No Disponibles (Suspendidos)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mt-md-4 pt-md-2">
+                        <button class="btn btn-primary w-100" onclick="cargarInforme1()"><i class="bi bi-filter me-1"></i> Consultar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Inmueble</th>
+                                <th>Tipo</th>
+                                <th>Cupo</th>
+                                <th>Tarifa / Día</th>
+                                <th>Propietario (Dueño)</th>
+                                <th>Contacto</th>
+                                <th>Estado</th>
+                                <th class="text-end pe-3">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla1_body">
+                            <tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Cargando informe...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- INFORME 2: Inmuebles por Propietario -->
+    <!-- ========================================== -->
+    <div class="tab-pane fade" id="tab2" role="tabpanel">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-person-badge text-primary me-2"></i>Informe 2: Inmuebles de un Propietario</h5>
+                <p class="text-muted small mb-0">Seleccione un propietario para listar todas las propiedades que le pertenecen en la inmobiliaria.</p>
+            </div>
+            <div class="card-body border-top bg-light p-3">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-5">
+                        <label class="form-label small fw-semibold text-muted">Seleccionar Propietario:</label>
+                        <select id="filtro2_prop" class="form-select">
+                            <option value="">-- Seleccionar Propietario --</option>
+                            @if (ViewBag.Propietarios != null)
+                            {
+                                foreach (var p in (IEnumerable<Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Propietario>)ViewBag.Propietarios)
+                                {
+                                    <option value="@p.IdPropietario">@p.Nombre @p.Apellido (DNI: @p.Dni)</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2 mt-md-4 pt-md-2">
+                        <button class="btn btn-primary w-100" onclick="cargarInforme2()"><i class="bi bi-search me-1"></i> Ver Inmuebles</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">#</th>
+                                <th>Dirección</th>
+                                <th>Tipo</th>
+                                <th>Cupo</th>
+                                <th>Precio por Día</th>
+                                <th>Seña Exigida</th>
+                                <th>Disponibilidad</th>
+                                <th class="text-end pe-3">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla2_body">
+                            <tr><td colspan="8" class="text-center py-4 text-muted">Seleccione un propietario para ver sus propiedades.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- INFORME 3: Más reservados en los últimos 365 días -->
+    <!-- ========================================== -->
+    <div class="tab-pane fade" id="tab3" role="tabpanel">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-trophy text-warning me-2"></i>Informe 3: Inmuebles Más Reservados (Últimos 365 Días)</h5>
+                    <p class="text-muted small mb-0">Ranking anual de propiedades con mayor demanda, cantidad de contratos y noches rentadas.</p>
+                </div>
+                <button class="btn btn-outline-primary btn-sm" onclick="cargarInforme3()"><i class="bi bi-arrow-clockwise me-1"></i> Actualizar</button>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Ranking</th>
+                                <th>Inmueble</th>
+                                <th>Tipo</th>
+                                <th>Dueño</th>
+                                <th>Tarifa Diaria</th>
+                                <th class="text-center">Total Reservas</th>
+                                <th class="text-center">Días Alquilados</th>
+                                <th class="text-end pe-3">Facturación Est.</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla3_body">
+                            <tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Cargando ranking...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- INFORME 4: Inmuebles sin reservas en los últimos X días -->
+    <!-- ========================================== -->
+    <div class="tab-pane fade" id="tab4" role="tabpanel">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-clock-history text-primary me-2"></i>Informe 4: Inmuebles Sin Reservas Recientes</h5>
+                <p class="text-muted small mb-0">Propiedades que no han tenido ninguna reserva en el período especificado (posible ociosidad o necesidad de revisión de precio).</p>
+            </div>
+            <div class="card-body border-top bg-light p-3">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label small fw-semibold text-muted">Días sin reservas:</label>
+                        <select id="filtro4_dias" class="form-select">
+                            <option value="30">Últimos 30 días</option>
+                            <option value="60" selected>Últimos 60 días</option>
+                            <option value="90">Últimos 90 días</option>
+                            <option value="180">Últimos 180 días</option>
+                            <option value="365">Último año (365 días)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mt-md-4 pt-md-2">
+                        <button class="btn btn-primary w-100" onclick="cargarInforme4()"><i class="bi bi-funnel me-1"></i> Filtrar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Inmueble</th>
+                                <th>Tipo</th>
+                                <th>Cupo</th>
+                                <th>Precio por Día</th>
+                                <th>Dueño</th>
+                                <th>Estado</th>
+                                <th class="text-end pe-3">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla4_body">
+                            <tr><td colspan="7" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Cargando informe...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- INFORME 5: Reservas vigentes por rango de fechas -->
+    <!-- ========================================== -->
+    <div class="tab-pane fade" id="tab5" role="tabpanel">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-calendar-check text-success me-2"></i>Informe 5: Reservas de Alquiler Vigentes</h5>
+                <p class="text-muted small mb-0">Listado de reservas en estado vigente dentro de un rango de fechas determinado.</p>
+            </div>
+            <div class="card-body border-top bg-light p-3">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold text-muted">Fecha Desde (Opcional):</label>
+                        <input type="date" id="filtro5_desde" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold text-muted">Fecha Hasta (Opcional):</label>
+                        <input type="date" id="filtro5_hasta" class="form-control" />
+                    </div>
+                    <div class="col-md-2 mt-md-4 pt-md-2">
+                        <button class="btn btn-success w-100" onclick="cargarInforme5()"><i class="bi bi-search me-1"></i> Buscar</button>
+                    </div>
+                    <div class="col-md-2 mt-md-4 pt-md-2">
+                        <button class="btn btn-outline-secondary w-100" onclick="limpiarFiltros5()"><i class="bi bi-x-circle me-1"></i> Limpiar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">#</th>
+                                <th>Inmueble</th>
+                                <th>Inquilino</th>
+                                <th>Desde</th>
+                                <th>Hasta</th>
+                                <th>Duración</th>
+                                <th>Monto Total</th>
+                                <th>Estado</th>
+                                <th class="text-end pe-3">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla5_body">
+                            <tr><td colspan="9" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-success me-2"></div>Cargando reservas vigentes...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- INFORME 6: Reservas que terminan en los próximos X días -->
+    <!-- ========================================== -->
+    <div class="tab-pane fade" id="tab6" role="tabpanel">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-hourglass-split text-danger me-2"></i>Informe 6: Reservas Próximas a Vencer (Check-Out)</h5>
+                <p class="text-muted small mb-0">Alertas de contratos vigentes cuya fecha de finalización ocurrirá en los próximos días (para gestión de renovación o recepción del inmueble).</p>
+            </div>
+            <div class="card-body border-top bg-light p-3">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label small fw-semibold text-muted">Vencimientos en los próximos:</label>
+                        <select id="filtro6_dias" class="form-select">
+                            <option value="3">3 días (Inminente)</option>
+                            <option value="7" selected>7 días (Esta semana)</option>
+                            <option value="15">15 días (Próxima quincena)</option>
+                            <option value="30">30 días (Este mes)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mt-md-4 pt-md-2">
+                        <button class="btn btn-danger w-100" onclick="cargarInforme6()"><i class="bi bi-alarm me-1"></i> Consultar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">#</th>
+                                <th>Inmueble</th>
+                                <th>Inquilino</th>
+                                <th>Teléfono Contacto</th>
+                                <th>Fecha Fin</th>
+                                <th>Días Restantes</th>
+                                <th>Monto Total</th>
+                                <th class="text-end pe-3">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla6_body">
+                            <tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-danger me-2"></div>Cargando reservas por vencer...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- INFORME 7: Pagos realizados por reserva -->
+    <!-- ========================================== -->
+    <div class="tab-pane fade" id="tab7" role="tabpanel">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-cash-coin text-success me-2"></i>Informe 7: Pagos de una Reserva Particular</h5>
+                <p class="text-muted small mb-0">Consulte el historial de cobros y señas de una reserva, con resumen de saldo y botón para registrar un nuevo pago.</p>
+            </div>
+            <div class="card-body border-top bg-light p-3">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold text-muted">Seleccionar Reserva:</label>
+                        <select id="filtro7_reserva" class="form-select">
+                            <option value="">-- Seleccione una Reserva --</option>
+                            @if (ViewBag.Reservas != null)
+                            {
+                                foreach (var r in (IEnumerable<Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Reserva>)ViewBag.Reservas)
+                                {
+                                    <option value="@r.IdReserva">Reserva #@r.IdReserva - @r.Inmueble?.Direccion (@r.Inquilino?.Nombre @r.Inquilino?.Apellido) [@r.FechaDesde.ToString("dd/MM") al @r.FechaHasta.ToString("dd/MM/yyyy")]</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2 mt-md-4 pt-md-2">
+                        <button class="btn btn-success w-100" onclick="cargarInforme7()"><i class="bi bi-receipt me-1"></i> Ver Pagos</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resumen Financiero Dinámico de la Reserva -->
+            <div id="resumen7_box" class="p-3 bg-white border-bottom d-none">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="p-2 border rounded bg-light">
+                            <small class="text-muted d-block">Monto Reserva:</small>
+                            <span class="fs-5 fw-bold text-dark" id="r7_monto">$0.00</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-2 border rounded bg-light">
+                            <small class="text-muted d-block">Multa Aplicada:</small>
+                            <span class="fs-5 fw-bold text-danger" id="r7_multa">$0.00</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-2 border rounded bg-light">
+                            <small class="text-muted d-block">Total Abonado:</small>
+                            <span class="fs-5 fw-bold text-success" id="r7_abonado">$0.00</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-2 border rounded bg-light d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted d-block">Saldo Pendiente:</small>
+                                <span class="fs-5 fw-bold text-primary" id="r7_saldo">$0.00</span>
+                            </div>
+                            <a id="r7_btn_nuevo_pago" href="#" class="btn btn-sm btn-success">
+                                <i class="bi bi-plus-circle me-1"></i> Cobrar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">N° Pago</th>
+                                <th>Fecha de Pago</th>
+                                <th>Importe</th>
+                                <th>Concepto</th>
+                                <th>Registrado Por</th>
+                                <th>Estado</th>
+                                <th class="text-end pe-3">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla7_body">
+                            <tr><td colspan="7" class="text-center py-4 text-muted">Seleccione una reserva para consultar sus comprobantes de pago.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- INFORME 8: Inmuebles libres entre dos fechas -->
+    <!-- ========================================== -->
+    <div class="tab-pane fade" id="tab8" role="tabpanel">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-search text-primary me-2"></i>Informe 8: Búsqueda de Inmuebles Libres Entre Fechas</h5>
+                <p class="text-muted small mb-0">Dadas dos fechas tentativas (inicio y fin), consulta las propiedades que NO tienen ninguna reserva superpuesta en ese rango.</p>
+            </div>
+            <div class="card-body border-top bg-light p-3">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold text-muted">Fecha Tentativa Desde:</label>
+                        <input type="date" id="filtro8_desde" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold text-muted">Fecha Tentativa Hasta:</label>
+                        <input type="date" id="filtro8_hasta" class="form-control" value="@DateTime.Today.AddDays(5).ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="col-md-3 mt-md-4 pt-md-2">
+                        <button class="btn btn-primary w-100 fw-semibold" onclick="cargarInforme8()">
+                            <i class="bi bi-search me-1"></i> Buscar Disponibles
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Inmueble</th>
+                                <th>Tipo</th>
+                                <th>Capacidad</th>
+                                <th>Tarifa / Noche</th>
+                                <th>Total Estadía</th>
+                                <th>Seña Requerida</th>
+                                <th>Dueño</th>
+                                <th class="text-end pe-3">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla8_body">
+                            <tr><td colspan="8" class="text-center py-4 text-muted">Haga clic en 'Buscar Disponibles' para consultar propiedades sin ocupación.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Cargar inicialmente el informe 1
+        cargarInforme1();
+
+        // Carga perezosa al cambiar de pestaña
+        document.getElementById('tab3-btn').addEventListener('shown.bs.tab', () => cargarInforme3());
+        document.getElementById('tab4-btn').addEventListener('shown.bs.tab', () => cargarInforme4());
+        document.getElementById('tab5-btn').addEventListener('shown.bs.tab', () => cargarInforme5());
+        document.getElementById('tab6-btn').addEventListener('shown.bs.tab', () => cargarInforme6());
+    });
+
+    const formatMoney = (amount) => "$" + Number(amount).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    // 1. INFORME 1
+    function cargarInforme1() {
+        const disp = document.getElementById("filtro1_disp").value;
+        const tbody = document.getElementById("tabla1_body");
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Consultando inmuebles...</td></tr>`;
+
+        fetch(`/Informes/ApiInmueblesPorDisponibilidad?disponible=${disp}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No se encontraron inmuebles para el filtro aplicado.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = data.map(i => `
+                    <tr>
+                        <td class="ps-3 fw-semibold">
+                            <a href="/Inmuebles/Details/${i.idInmueble}" class="text-dark text-decoration-none">${i.direccion}</a>
+                        </td>
+                        <td>${i.tipo}</td>
+                        <td><span class="badge bg-light text-dark border">${i.cupo} pers.</span></td>
+                        <td class="fw-bold text-success">${formatMoney(i.precioDia)}</td>
+                        <td>${i.duenio}</td>
+                        <td class="small text-muted">${i.telefonoDuenio || "—"}</td>
+                        <td>
+                            ${i.disponible ? 
+                                '<span class="badge bg-success-subtle text-success border border-success-subtle">Disponible</span>' : 
+                                '<span class="badge bg-danger-subtle text-danger border border-danger-subtle">Suspendido</span>'}
+                        </td>
+                        <td class="text-end pe-3">
+                            <a href="/Inmuebles/Details/${i.idInmueble}" class="btn btn-sm btn-outline-info" title="Ver Ficha"><i class="bi bi-eye"></i></a>
+                        </td>
+                    </tr>
+                `).join('');
+            })
+            .catch(() => tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger">Error al consultar el informe.</td></tr>`);
+    }
+
+    // 2. INFORME 2
+    function cargarInforme2() {
+        const idProp = document.getElementById("filtro2_prop").value;
+        const tbody = document.getElementById("tabla2_body");
+        if (!idProp) {
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">Seleccione un propietario para consultar sus propiedades.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Buscando propiedades...</td></tr>`;
+
+        fetch(`/Informes/ApiInmueblesPorPropietario?idPropietario=${idProp}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">Este propietario no tiene inmuebles registrados.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = data.map(i => `
+                    <tr>
+                        <td class="ps-3 fw-bold">#${i.idInmueble}</td>
+                        <td class="fw-semibold">${i.direccion}</td>
+                        <td>${i.tipo}</td>
+                        <td>${i.cupo} personas</td>
+                        <td class="fw-bold text-success">${formatMoney(i.precioDia)}</td>
+                        <td>${i.porcentajeReserva}%</td>
+                        <td>
+                            ${i.disponible ? 
+                                '<span class="badge bg-success-subtle text-success">Disponible</span>' : 
+                                '<span class="badge bg-danger-subtle text-danger">Suspendido</span>'}
+                        </td>
+                        <td class="text-end pe-3">
+                            <a href="/Inmuebles/Details/${i.idInmueble}" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i></a>
+                        </td>
+                    </tr>
+                `).join('');
+            });
+    }
+
+    // 3. INFORME 3
+    function cargarInforme3() {
+        const tbody = document.getElementById("tabla3_body");
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-warning me-2"></div>Calculando ranking anual...</td></tr>`;
+
+        fetch(`/Informes/ApiInmueblesMasReservados?dias=365`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No se registran reservas en los últimos 365 días.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = data.map((i, idx) => `
+                    <tr>
+                        <td class="ps-3">
+                            ${idx === 0 ? '<span class="badge bg-warning text-dark fs-6"><i class="bi bi-trophy-fill me-1"></i>1°</span>' : 
+                              idx === 1 ? '<span class="badge bg-secondary fs-6">2°</span>' : 
+                              idx === 2 ? '<span class="badge bg-bronze fs-6 text-dark border">3°</span>' : 
+                              `<span class="fw-bold text-muted">${idx+1}°</span>`}
+                        </td>
+                        <td class="fw-semibold">
+                            <a href="/Inmuebles/Details/${i.idInmueble}" class="text-dark text-decoration-none">${i.direccion}</a>
+                        </td>
+                        <td>${i.tipoDescripcion}</td>
+                        <td>${i.duenioCompleto}</td>
+                        <td>${formatMoney(i.precioDia)}</td>
+                        <td class="text-center"><span class="badge bg-primary fs-6">${i.cantidadReservas} reservas</span></td>
+                        <td class="text-center fw-bold">${i.totalDiasReservados} noches</td>
+                        <td class="text-end pe-3 fw-bold text-success">${formatMoney(i.totalRecaudado)}</td>
+                    </tr>
+                `).join('');
+            });
+    }
+
+    // 4. INFORME 4
+    function cargarInforme4() {
+        const dias = document.getElementById("filtro4_dias").value;
+        const tbody = document.getElementById("tabla4_body");
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Consultando propiedades sin reservas...</td></tr>`;
+
+        fetch(`/Informes/ApiInmueblesSinReservas?dias=${dias}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-success"><i class="bi bi-check-circle me-1"></i>¡Excelente! Todos los inmuebles han tenido actividad en los últimos ${dias} días.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = data.map(i => `
+                    <tr>
+                        <td class="ps-3 fw-semibold">
+                            <a href="/Inmuebles/Details/${i.idInmueble}" class="text-dark text-decoration-none">${i.direccion}</a>
+                        </td>
+                        <td>${i.tipo}</td>
+                        <td>${i.cupo} pers.</td>
+                        <td class="fw-bold text-dark">${formatMoney(i.precioDia)}</td>
+                        <td>${i.duenio}</td>
+                        <td>
+                            ${i.disponible ? 
+                                '<span class="badge bg-success-subtle text-success">Disponible</span>' : 
+                                '<span class="badge bg-danger-subtle text-danger">Suspendido</span>'}
+                        </td>
+                        <td class="text-end pe-3">
+                            <a href="/Inmuebles/Details/${i.idInmueble}" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i></a>
+                        </td>
+                    </tr>
+                `).join('');
+            });
+    }
+
+    // 5. INFORME 5
+    function cargarInforme5() {
+        const desde = document.getElementById("filtro5_desde").value;
+        const hasta = document.getElementById("filtro5_hasta").value;
+        const tbody = document.getElementById("tabla5_body");
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-success me-2"></div>Buscando reservas vigentes...</td></tr>`;
+
+        fetch(`/Informes/ApiReservasVigentes?desde=${desde}&hasta=${hasta}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">No se encontraron reservas vigentes en el rango seleccionado.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = data.map(r => `
+                    <tr>
+                        <td class="ps-3 fw-bold">#${r.idReserva}</td>
+                        <td class="fw-semibold">${r.inmueble}</td>
+                        <td>${r.inquilino} <span class="text-muted small d-block">DNI: ${r.dniInquilino}</span></td>
+                        <td>${r.fechaDesde}</td>
+                        <td>${r.fechaHasta}</td>
+                        <td><span class="badge bg-light text-dark border">${r.dias} d</span></td>
+                        <td class="fw-bold text-success">${formatMoney(r.montoTotal)}</td>
+                        <td><span class="badge bg-success">Vigente</span></td>
+                        <td class="text-end pe-3">
+                            <a href="/Reservas/Details/${r.idReserva}" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i></a>
+                        </td>
+                    </tr>
+                `).join('');
+            });
+    }
+
+    function limpiarFiltros5() {
+        document.getElementById("filtro5_desde").value = "";
+        document.getElementById("filtro5_hasta").value = "";
+        cargarInforme5();
+    }
+
+    // 6. INFORME 6
+    function cargarInforme6() {
+        const dias = document.getElementById("filtro6_dias").value;
+        const tbody = document.getElementById("tabla6_body");
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-danger me-2"></div>Consultando vencimientos...</td></tr>`;
+
+        fetch(`/Informes/ApiReservasPorVencer?dias=${dias}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No hay reservas vigentes que terminen en los próximos ${dias} días.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = data.map(r => `
+                    <tr>
+                        <td class="ps-3 fw-bold">#${r.idReserva}</td>
+                        <td class="fw-semibold">${r.inmueble}</td>
+                        <td>${r.inquilino}</td>
+                        <td>${r.telefonoInquilino || "—"}</td>
+                        <td class="fw-bold text-danger">${r.fechaHasta}</td>
+                        <td>
+                            <span class="badge ${r.diasRestantes <= 2 ? 'bg-danger' : 'bg-warning text-dark'}">
+                                ${r.diasRestantes === 0 ? '¡Termina Hoy!' : r.diasRestantes + ' día(s)'}
+                            </span>
+                        </td>
+                        <td class="fw-bold text-success">${formatMoney(r.montoTotal)}</td>
+                        <td class="text-end pe-3">
+                            <div class="btn-group btn-group-sm">
+                                <a href="/Reservas/Renovar/${r.idReserva}" class="btn btn-outline-primary" title="Renovar estadía"><i class="bi bi-arrow-repeat"></i></a>
+                                <a href="/Reservas/Details/${r.idReserva}" class="btn btn-outline-info" title="Ver Reserva"><i class="bi bi-eye"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            });
+    }
+
+    // 7. INFORME 7
+    function cargarInforme7() {
+        const idReserva = document.getElementById("filtro7_reserva").value;
+        const tbody = document.getElementById("tabla7_body");
+        const boxResumen = document.getElementById("resumen7_box");
+
+        if (!idReserva) {
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">Seleccione una reserva para consultar pagos.</td></tr>`;
+            boxResumen.classList.add("d-none");
+            return;
+        }
+
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-success me-2"></div>Cargando pagos...</td></tr>`;
+
+        fetch(`/Informes/ApiPagosPorReserva?idReserva=${idReserva}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.reserva) {
+                    boxResumen.classList.remove("d-none");
+                    document.getElementById("r7_monto").innerText = formatMoney(data.reserva.montoTotal);
+                    document.getElementById("r7_multa").innerText = formatMoney(data.reserva.multa);
+                    document.getElementById("r7_abonado").innerText = formatMoney(data.reserva.totalAbonado);
+                    document.getElementById("r7_saldo").innerText = formatMoney(data.reserva.saldo);
+                    document.getElementById("r7_btn_nuevo_pago").href = `/Pagos/Create?idReserva=${data.reserva.idReserva}`;
+                }
+
+                if (!data.pagos || data.pagos.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No se registran comprobantes de pago para esta reserva aún.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = data.pagos.map(p => `
+                    <tr class="${p.estado === 'Anulado' ? 'table-light opacity-75' : ''}">
+                        <td class="ps-3 fw-bold">#${p.numeroPago}</td>
+                        <td>${p.fechaPago}</td>
+                        <td class="fw-bold text-success">${formatMoney(p.importe)}</td>
+                        <td>${p.concepto}</td>
+                        <td class="small text-muted">${p.creadoPor}</td>
+                        <td>
+                            ${p.estado === 'Activo' ? 
+                                '<span class="badge bg-success-subtle text-success">Activo</span>' : 
+                                '<span class="badge bg-danger-subtle text-danger">Anulado</span>'}
+                        </td>
+                        <td class="text-end pe-3">
+                            <a href="/Pagos/Details/${p.idPago}" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i></a>
+                        </td>
+                    </tr>
+                `).join('');
+            });
+    }
+
+    // 8. INFORME 8
+    function cargarInforme8() {
+        const desde = document.getElementById("filtro8_desde").value;
+        const hasta = document.getElementById("filtro8_hasta").value;
+        const tbody = document.getElementById("tabla8_body");
+
+        if (!desde || !hasta) {
+            alert("Debe especificar ambas fechas.");
+            return;
+        }
+
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Buscando propiedades sin superposición de fechas...</td></tr>`;
+
+        fetch(`/Informes/ApiInmueblesLibresEntreFechas?desde=${desde}&hasta=${hasta}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-warning"><i class="bi bi-exclamation-circle me-1"></i>No hay inmuebles disponibles para el período seleccionado.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = data.map(i => `
+                    <tr>
+                        <td class="ps-3 fw-semibold">
+                            <a href="/Inmuebles/Details/${i.idInmueble}" class="text-dark text-decoration-none">${i.direccion}</a>
+                        </td>
+                        <td>${i.tipo}</td>
+                        <td>${i.cupo} pers.</td>
+                        <td class="fw-bold text-dark">${formatMoney(i.precioDia)}</td>
+                        <td class="fw-bold text-primary">${formatMoney(i.totalEstadia)}</td>
+                        <td class="fw-bold text-success">${formatMoney(i.montoSenia)} (${i.porcentajeReserva}%)</td>
+                        <td>${i.duenio}</td>
+                        <td class="text-end pe-3">
+                            <a href="/Reservas/Create" class="btn btn-sm btn-success">
+                                <i class="bi bi-calendar-plus me-1"></i> Reservar
+                            </a>
+                        </td>
+                    </tr>
+                `).join('');
+            });
+    }
+</script>
+}

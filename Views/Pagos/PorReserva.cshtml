@@ -49,9 +49,9 @@
     <div class="col-md-3">
         <div class="card border-0 shadow-sm rounded-3 bg-white border-start border-4 border-info">
             <div class="card-body">
-                <div class="text-muted small fw-semibold">SEÃ‘A MÃNIMA (@(reserva?.Inmueble?.PorcentajeReserva ?? 10)%)</div>
+                <div class="text-muted small fw-semibold">SEÑA MÍNIMA (@(reserva?.Inmueble?.PorcentajeReserva ?? 10)%)</div>
                 <div class="fs-4 fw-bold text-info mt-1">$@reserva?.MontoMinimoSenia.ToString("N2")</div>
-                <div class="small text-muted">Para confirmar estadÃ­a</div>
+                <div class="small text-muted">Para confirmar estadía</div>
             </div>
         </div>
     </div>
@@ -72,7 +72,7 @@
                     $@(saldo > 0 ? saldo.ToString("N2") : "0.00")
                 </div>
                 <div class="small @(saldo <= 0 ? "text-success fw-semibold" : "text-muted")">
-                    @(saldo <= 0 ? "Â¡Completamente pagada!" : "Pendiente de cobro")
+                    @(saldo <= 0 ? "¡Completamente pagada!" : "Pendiente de cobro")
                 </div>
             </div>
         </div>
@@ -94,7 +94,7 @@
                 <span class="d-block text-muted small">@reserva?.Inmueble?.Tipo?.Descripcion &bull; $@reserva?.PrecioPorDia.ToString("N2") / noche</span>
             </div>
             <div class="col-md-3 text-md-end">
-                <small class="text-muted d-block">PerÃ­odo de EstadÃ­a</small>
+                <small class="text-muted d-block">Período de Estadía</small>
                 <strong>@reserva?.FechaDesde.ToString("dd/MM/yyyy") al @reserva?.FechaHasta.ToString("dd/MM/yyyy")</strong>
                 <span class="d-block badge bg-secondary mt-1">@reserva?.Estado</span>
             </div>
@@ -112,14 +112,14 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th class="ps-3">NÂ° Pago</th>
+                        <th class="ps-3">N° Pago</th>
                         <th>Fecha</th>
                         <th>Importe</th>
                         <th>Concepto</th>
                         <th>Estado</th>
                         @if (User.IsInRole("Administrador"))
                         {
-                            <th>AuditorÃ­a (Creador / Anulador)</th>
+                            <th>Auditoría (Creador / Anulador)</th>
                         }
                         <th class="text-end pe-3">Acciones</th>
                     </tr>
@@ -181,7 +181,7 @@
                         <tr>
                             <td colspan="@(User.IsInRole("Administrador") ? 7 : 6)" class="text-center py-5 text-muted">
                                 <i class="bi bi-cash-stack display-6 d-block mb-2"></i>
-                                AÃºn no se han registrado pagos para esta reserva.
+                                Aún no se han registrado pagos para esta reserva.
                             </td>
                         </tr>
                     }

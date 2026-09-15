@@ -5,7 +5,7 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
     public class Usuario
     {
         [Key]
-        [Display(Name = "CÃ³digo")]
+        [Display(Name = "Código")]
         public int IdUsuario { get; set; }
 
         [Required(ErrorMessage = "El nombre es obligatorio")]
@@ -17,11 +17,11 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public string Apellido { get; set; } = "";
 
         [Required(ErrorMessage = "El email es obligatorio")]
-        [EmailAddress(ErrorMessage = "Formato de email invÃ¡lido")]
+        [EmailAddress(ErrorMessage = "Formato de email inválido")]
         [StringLength(100)]
         public string Email { get; set; } = "";
 
-        [Display(Name = "ContraseÃ±a")]
+        [Display(Name = "Contraseña")]
         public string? Password { get; set; }
 
         public string PasswordHash { get; set; } = "";

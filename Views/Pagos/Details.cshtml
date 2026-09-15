@@ -21,13 +21,13 @@
                             <p class="mb-1"><strong>Reserva:</strong> #@Model.IdReserva</p>
                             <p class="mb-1"><strong>Inquilino:</strong> @Model.Reserva?.Inquilino?.Nombre @Model.Reserva?.Inquilino?.Apellido</p>
                             <p class="mb-1"><strong>Inmueble:</strong> @Model.Reserva?.Inmueble?.Direccion</p>
-                            <p class="mb-0"><strong>PerÃ­odo:</strong> @Model.Reserva?.FechaDesde.ToString("dd/MM/yyyy") al @Model.Reserva?.FechaHasta.ToString("dd/MM/yyyy")</p>
+                            <p class="mb-0"><strong>Período:</strong> @Model.Reserva?.FechaDesde.ToString("dd/MM/yyyy") al @Model.Reserva?.FechaHasta.ToString("dd/MM/yyyy")</p>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="card bg-light border-0 p-3 h-100">
-                            <h6 class="text-muted fw-bold mb-3"><i class="bi bi-cash-stack me-2"></i>InformaciÃ³n del Pago</h6>
-                            <p class="mb-1"><strong>NÂ° de Pago:</strong> #@Model.NumeroPago</p>
+                            <h6 class="text-muted fw-bold mb-3"><i class="bi bi-cash-stack me-2"></i>Información del Pago</h6>
+                            <p class="mb-1"><strong>N° de Pago:</strong> #@Model.NumeroPago</p>
                             <p class="mb-1"><strong>Fecha de Pago:</strong> @Model.FechaPago.ToString("dd/MM/yyyy HH:mm")</p>
                             <p class="mb-1"><strong>Importe:</strong> <span class="text-success fw-bold fs-5">$@Model.Importe.ToString("N2")</span></p>
                             <p class="mb-0"><strong>Concepto:</strong> @Model.Concepto</p>
@@ -39,16 +39,16 @@
                 {
                     <div class="card border-warning mb-4">
                         <div class="card-header bg-warning bg-opacity-25 py-2 fw-bold text-dark">
-                            <i class="bi bi-shield-lock-fill text-warning me-2"></i>AuditorÃ­a del Sistema (Visible solo para Administradores)
+                            <i class="bi bi-shield-lock-fill text-warning me-2"></i>Auditoría del Sistema (Visible solo para Administradores)
                         </div>
                         <div class="card-body py-3">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <small class="text-muted d-block">Usuario que RegistrÃ³ el Pago:</small>
+                                    <small class="text-muted d-block">Usuario que Registró el Pago:</small>
                                     <strong>@(Model.UsuarioCreador != null ? $"{Model.UsuarioCreador.Nombre} {Model.UsuarioCreador.Apellido} ({Model.UsuarioCreador.Email})" : "No registrado / Semilla")</strong>
                                 </div>
                                 <div class="col-md-6">
-                                    <small class="text-muted d-block">Estado de AnulaciÃ³n:</small>
+                                    <small class="text-muted d-block">Estado de Anulación:</small>
                                     @if (Model.Estado == "Anulado")
                                     {
                                         <div class="text-danger fw-semibold">

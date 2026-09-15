@@ -8,14 +8,14 @@
     <div class="col-md-6">
         <div class="card shadow-sm border-danger rounded-3">
             <div class="card-header bg-danger text-white py-3">
-                <h4 class="mb-0 fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar AnulaciÃ³n de Pago</h4>
+                <h4 class="mb-0 fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar Anulación de Pago</h4>
             </div>
             <div class="card-body p-4 text-center">
                 <i class="bi bi-x-circle text-danger display-3 d-block mb-3"></i>
-                <h5 class="fw-bold mb-3">Â¿EstÃ¡ seguro de que desea anular este comprobante de pago?</h5>
+                <h5 class="fw-bold mb-3">¿Está seguro de que desea anular este comprobante de pago?</h5>
                 
                 <div class="alert alert-light border text-start mb-4">
-                    <p class="mb-1"><strong>NÂ° de Pago:</strong> #@Model.NumeroPago</p>
+                    <p class="mb-1"><strong>N° de Pago:</strong> #@Model.NumeroPago</p>
                     <p class="mb-1"><strong>Reserva:</strong> #@Model.IdReserva</p>
                     <p class="mb-1"><strong>Importe:</strong> <span class="text-danger fw-bold">$@Model.Importe.ToString("N2")</span></p>
                     <p class="mb-1"><strong>Fecha:</strong> @Model.FechaPago.ToString("dd/MM/yyyy HH:mm")</p>
@@ -23,7 +23,7 @@
                 </div>
 
                 <p class="text-muted small">
-                    El registro no serÃ¡ borrado fÃ­sicamente de la base de datos; quedarÃ¡ registrado como <strong>Anulado</strong> y se guardarÃ¡ la fecha y su usuario para fines de auditorÃ­a.
+                    El registro no será borrado físicamente de la base de datos; quedará registrado como <strong>Anulado</strong> y se guardará la fecha y su usuario para fines de auditoría.
                 </p>
 
                 <form asp-action="ConfirmarAnular" method="post" class="d-flex justify-content-center gap-3 mt-4">
@@ -34,7 +34,7 @@
                         Cancelar
                     </a>
                     <button type="submit" class="btn btn-danger px-4 shadow-sm">
-                        <i class="bi bi-x-octagon me-1"></i> SÃ­, Anular Pago
+                        <i class="bi bi-x-octagon me-1"></i> Sí, Anular Pago
                     </button>
                 </form>
             </div>

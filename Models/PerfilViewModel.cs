@@ -13,20 +13,20 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         public string Apellido { get; set; } = "";
 
         [Required(ErrorMessage = "El email es obligatorio")]
-        [EmailAddress(ErrorMessage = "Formato de correo invÃ¡lido")]
+        [EmailAddress(ErrorMessage = "Formato de correo inválido")]
         public string Email { get; set; } = "";
 
         public string Rol { get; set; } = "";
 
         public string? AvatarUrl { get; set; }
 
-        [Display(Name = "Nueva ContraseÃ±a (dejar en blanco para no cambiar)")]
+        [Display(Name = "Nueva Contraseña (dejar en blanco para no cambiar)")]
         [DataType(DataType.Password)]
         public string? NuevaPassword { get; set; }
 
-        [Display(Name = "Confirmar ContraseÃ±a")]
+        [Display(Name = "Confirmar Contraseña")]
         [DataType(DataType.Password)]
-        [Compare("NuevaPassword", ErrorMessage = "Las contraseÃ±as no coinciden")]
+        [Compare("NuevaPassword", ErrorMessage = "Las contraseñas no coinciden")]
         public string? ConfirmarPassword { get; set; }
 
         [Display(Name = "Archivo de Avatar")]

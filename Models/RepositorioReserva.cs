@@ -449,6 +449,118 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
             return resultado;
         }
 
+        
+        // ==========================================
+        // MÓDULO 5: CONSULTAS DE INFORMES
+        // ==========================================
+        public IList<Reserva> ObtenerVigentes(DateTime? desde, DateTime? hasta)
+        {
+            var res = new List<Reserva>();
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+                string sql = @"SELECT r.IdReserva, r.IdInquilino, r.IdInmueble, r.FechaDesde, r.FechaHasta, 
+                                      r.PrecioPorDia, r.MontoTotal, r.FechaTerminacion, r.Multa, r.Estado, r.Activo,
+                                      r.IdUsuarioCreador, r.IdUsuarioTerminador, r.IdReservaOrigen,
+                                      iq.Nombre AS InquilinoNombre, iq.Apellido AS InquilinoApellido, iq.Dni AS InquilinoDni,
+                                      iq.Telefono AS InquilinoTelefono, iq.Email AS InquilinoEmail,
+                                      im.Direccion AS InmuebleDireccion, im.PrecioDia AS InmueblePrecioDia,
+                                      im.Cupo AS InmuebleCupo, im.Disponible AS InmuebleDisponible,
+                                      im.PorcentajeReserva AS InmueblePorcentajeReserva,
+                                      p.Nombre AS DuenioNombre, p.Apellido AS DuenioApellido,
+                                      t.Descripcion AS TipoDescripcion,
+                                      uc.Nombre AS CreadorNombre, uc.Apellido AS CreadorApellido, uc.Email AS CreadorEmail,
+                                      ut.Nombre AS TerminadorNombre, ut.Apellido AS TerminadorApellido, ut.Email AS TerminadorEmail
+                               FROM Reservas r
+                               INNER JOIN Inquilinos iq ON r.IdInquilino = iq.IdInquilino
+                               INNER JOIN Inmuebles im ON r.IdInmueble = im.IdInmueble
+                               INNER JOIN Propietarios p ON im.IdPropietario = p.IdPropietario
+                               INNER JOIN TiposInmueble t ON im.IdTipoInmueble = t.IdTipoInmueble
+                               LEFT JOIN Usuarios uc ON r.IdUsuarioCreador = uc.IdUsuario
+                               LEFT JOIN Usuarios ut ON r.IdUsuarioTerminador = ut.IdUsuario
+                               WHERE r.Activo = 1 
+                                 AND r.Estado = 'Vigente'";
+
+                if (desde.HasValue)
+                {
+                    sql += " AND r.FechaHasta >= @desde";
+                }
+                if (hasta.HasValue)
+                {
+                    sql += " AND r.FechaDesde <= @hasta";
+                }
+
+                sql += " ORDER BY r.FechaDesde ASC";
+
+                using (MySqlCommand command = new MySqlCommand(sql, connection))
+                {
+                    if (desde.HasValue)
+                    {
+                        command.Parameters.AddWithValue("@desde", desde.Value.Date);
+                    }
+                    if (hasta.HasValue)
+                    {
+                        command.Parameters.AddWithValue("@hasta", hasta.Value.Date);
+                    }
+
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            res.Add(MapFromReader(reader));
+                        }
+                    }
+                }
+            }
+            return res;
+        }
+
+        public IList<Reserva> ObtenerPorVencer(int dias)
+        {
+            var res = new List<Reserva>();
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+                // Reservas vigentes cuya FechaHasta esté entre hoy y hoy + dias
+                string sql = @"SELECT r.IdReserva, r.IdInquilino, r.IdInmueble, r.FechaDesde, r.FechaHasta, 
+                                      r.PrecioPorDia, r.MontoTotal, r.FechaTerminacion, r.Multa, r.Estado, r.Activo,
+                                      r.IdUsuarioCreador, r.IdUsuarioTerminador, r.IdReservaOrigen,
+                                      iq.Nombre AS InquilinoNombre, iq.Apellido AS InquilinoApellido, iq.Dni AS InquilinoDni,
+                                      iq.Telefono AS InquilinoTelefono, iq.Email AS InquilinoEmail,
+                                      im.Direccion AS InmuebleDireccion, im.PrecioDia AS InmueblePrecioDia,
+                                      im.Cupo AS InmuebleCupo, im.Disponible AS InmuebleDisponible,
+                                      im.PorcentajeReserva AS InmueblePorcentajeReserva,
+                                      p.Nombre AS DuenioNombre, p.Apellido AS DuenioApellido,
+                                      t.Descripcion AS TipoDescripcion,
+                                      uc.Nombre AS CreadorNombre, uc.Apellido AS CreadorApellido, uc.Email AS CreadorEmail,
+                                      ut.Nombre AS TerminadorNombre, ut.Apellido AS TerminadorApellido, ut.Email AS TerminadorEmail
+                               FROM Reservas r
+                               INNER JOIN Inquilinos iq ON r.IdInquilino = iq.IdInquilino
+                               INNER JOIN Inmuebles im ON r.IdInmueble = im.IdInmueble
+                               INNER JOIN Propietarios p ON im.IdPropietario = p.IdPropietario
+                               INNER JOIN TiposInmueble t ON im.IdTipoInmueble = t.IdTipoInmueble
+                               LEFT JOIN Usuarios uc ON r.IdUsuarioCreador = uc.IdUsuario
+                               LEFT JOIN Usuarios ut ON r.IdUsuarioTerminador = ut.IdUsuario
+                               WHERE r.Activo = 1 
+                                 AND r.Estado = 'Vigente'
+                                 AND r.FechaHasta >= CURDATE()
+                                 AND r.FechaHasta <= DATE_ADD(CURDATE(), INTERVAL @dias DAY)
+                               ORDER BY r.FechaHasta ASC";
+
+                using (MySqlCommand command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@dias", Math.Max(1, dias));
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            res.Add(MapFromReader(reader));
+                        }
+                    }
+                }
+            }
+            return res;
+        }
         private static Reserva MapFromReader(MySqlDataReader reader)
         {
             var reserva = new Reserva

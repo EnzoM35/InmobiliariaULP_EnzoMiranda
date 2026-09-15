@@ -1,0 +1,128 @@
+﻿@model Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models.Inmueble
+
+@{
+    ViewData["Title"] = $"Galería de Fotos - {Model.Direccion}";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a asp-action="Index">Inmuebles</a></li>
+                <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.IdInmueble">@Model.Direccion</a></li>
+                <li class="breadcrumb-item active">Galería</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-images text-primary me-2"></i>Galería Fotográfica
+        </h2>
+        <p class="text-muted small mb-0">Inmueble: <strong>@Model.Direccion</strong> &bull; @Model.Tipo?.Descripcion (Dueño: @Model.Duenio?.Nombre @Model.Duenio?.Apellido)</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Details" asp-route-id="@Model.IdInmueble" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Volver a Detalles
+        </a>
+    </div>
+</div>
+
+<!-- Tarjeta de Subida de Fotos Múltiples -->
+<div class="card shadow-sm border-0 mb-4 rounded-3">
+    <div class="card-header bg-primary text-white py-3">
+        <h5 class="mb-0 fw-bold"><i class="bi bi-cloud-arrow-up me-2"></i>Subir Nuevas Fotos</h5>
+    </div>
+    <div class="card-body p-4">
+        <form asp-action="SubirFotos" method="post" enctype="multipart/form-data" class="row g-3 align-items-center">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="idInmueble" value="@Model.IdInmueble" />
+
+            <div class="col-md-9">
+                <label class="form-label fw-semibold text-dark">Seleccionar una o varias imágenes (JPG, PNG, WEBP):</label>
+                <div class="input-group">
+                    <input type="file" name="fotos" multiple accept="image/png, image/jpeg, image/webp" class="form-control form-control-lg" id="inputFotos" required />
+                    <label class="input-group-text bg-light" for="inputFotos"><i class="bi bi-file-earmark-image"></i></label>
+                </div>
+                <small class="text-muted">Puede seleccionar múltiples fotos a la vez manteniendo presionada la tecla Ctrl o Shift.</small>
+            </div>
+            <div class="col-md-3 mt-md-4 pt-md-2">
+                <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm fw-semibold">
+                    <i class="bi bi-upload me-1"></i> Subir a Galería
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Grilla de Fotos de la Galería -->
+<div class="card shadow-sm border-0 rounded-3">
+    <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-camera-fill me-2 text-primary"></i>Fotos del Inmueble 
+            <span class="badge bg-secondary ms-2">@(Model.Imagenes?.Count ?? 0) foto(s)</span>
+        </h5>
+        @if (Model.Imagenes != null && Model.Imagenes.Any())
+        {
+            <small class="text-muted"><i class="bi bi-star-fill text-warning me-1"></i>La imagen con borde dorado es la Portada Principal</small>
+        }
+    </div>
+    <div class="card-body p-4">
+        @if (Model.Imagenes != null && Model.Imagenes.Any())
+        {
+            <div class="row g-4">
+                @foreach (var img in Model.Imagenes)
+                {
+                    <div class="col-sm-6 col-md-4 col-lg-3">
+                        <div class="card h-100 shadow-sm border-0 position-relative @(img.EsPortada ? "border border-3 border-warning" : "")">
+                            @if (img.EsPortada)
+                            {
+                                <span class="position-absolute top-0 start-0 m-2 badge bg-warning text-dark fw-bold shadow-sm">
+                                    <i class="bi bi-star-fill me-1"></i> Portada
+                                </span>
+                            }
+
+                            <div style="height: 200px; overflow: hidden; background-color: #f8f9fa;" class="rounded-top d-flex align-items-center justify-content-center">
+                                <a href="@img.Url" target="_blank" title="Click para ver en tamaño completo">
+                                    <img src="@img.Url" class="card-img-top" alt="Foto Inmueble" 
+                                         style="height: 200px; width: 100%; object-fit: cover; transition: transform .3s ease;" 
+                                         onmouseover="this.style.transform='scale(1.05)'" 
+                                         onmouseout="this.style.transform='scale(1.0)'" />
+                                </a>
+                            </div>
+
+                            <div class="card-body p-2 bg-light rounded-bottom text-center">
+                                <div class="d-flex justify-content-center gap-2">
+                                    @if (!img.EsPortada)
+                                    {
+                                        <form asp-action="EstablecerPortada" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="idInmueble" value="@Model.IdInmueble" />
+                                            <input type="hidden" name="idImagen" value="@img.IdImagen" />
+                                            <button type="submit" class="btn btn-outline-warning btn-sm" title="Fijar como portada principal">
+                                                <i class="bi bi-star"></i> Portada
+                                            </button>
+                                        </form>
+                                    }
+                                    <form asp-action="EliminarFoto" method="post" class="d-inline" onsubmit="return confirm('¿Confirma que desea eliminar esta fotografía?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="idInmueble" value="@Model.IdInmueble" />
+                                        <input type="hidden" name="idImagen" value="@img.IdImagen" />
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar foto">
+                                            <i class="bi bi-trash"></i> Eliminar
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-images display-1 d-block mb-3 text-secondary opacity-50"></i>
+                <h5 class="fw-semibold">Este inmueble aún no tiene fotografías en su galería.</h5>
+                <p class="small">Utilice el panel superior para subir imágenes y hacer que la propiedad sea más atractiva para los inquilinos.</p>
+            </div>
+        }
+    </div>
+</div>

@@ -13,5 +13,9 @@
         IList<Reserva> ObtenerRenovaciones(int idReservaOrigen);
         bool ExisteSuperposicion(int idInmueble, DateTime desde, DateTime hasta, int? idReservaExcluir = null);
         ListaPaginada<Reserva> ObtenerPaginado(string? filtro, int pagina, int tamano = 5);
+
+        // Módulo 5: Consultas de Informes
+        IList<Reserva> ObtenerVigentes(DateTime? desde, DateTime? hasta);
+        IList<Reserva> ObtenerPorVencer(int dias);
     }
 }

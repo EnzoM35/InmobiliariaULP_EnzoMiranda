@@ -1,4 +1,4 @@
-namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
+﻿namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
 {
     public interface IRepositorioInmueble
     {
@@ -10,5 +10,18 @@ namespace Laboratorio_II___Proyecto_Inmobiliaria_EnzoMiranda.Models
         IList<Inmueble> ObtenerDisponibles();
         IList<Inmueble> ObtenerPorPropietario(int idPropietario);
         ListaPaginada<Inmueble> ObtenerPaginado(string? filtro, int pagina, int tamano = 5);
+
+        // Módulo 4: Gestión de Galería de Imágenes
+        int AltaImagen(ImagenInmueble imagen);
+        int EliminarImagen(int idImagen);
+        IList<ImagenInmueble> ObtenerImagenesPorInmueble(int idInmueble);
+        ImagenInmueble? ObtenerImagenPorId(int idImagen);
+        int EstablecerPortada(int idInmueble, int idImagen);
+
+        // Módulo 5: Consultas de Informes
+        IList<Inmueble> ObtenerPorDisponibilidad(bool? disponible);
+        IList<Inmueble> ObtenerSinReservas(int dias);
+        IList<Inmueble> ObtenerLibresEntreFechas(DateTime desde, DateTime hasta);
+        IList<InmuebleRankingDTO> ObtenerMasReservados(int dias = 365);
     }
 }

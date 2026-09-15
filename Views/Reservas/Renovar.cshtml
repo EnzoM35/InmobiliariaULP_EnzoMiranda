@@ -10,7 +10,7 @@
     <div class="col-md-8">
         <div class="card shadow-sm border-0 rounded-3">
             <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
-                <h4 class="mb-0 fw-bold"><i class="bi bi-arrow-repeat me-2"></i>RenovaciÃ³n / ExtensiÃ³n de Reserva</h4>
+                <h4 class="mb-0 fw-bold"><i class="bi bi-arrow-repeat me-2"></i>Renovación / Extensión de Reserva</h4>
                 <span class="badge bg-white text-primary fw-bold">Origen: Reserva #@Model.IdReservaOrigen</span>
             </div>
             <div class="card-body p-4">
@@ -19,7 +19,7 @@
                     <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
                         <i class="bi bi-exclamation-triangle-fill fs-3 text-danger me-3"></i>
                         <div>
-                            <strong>Conflicto de disponibilidad:</strong> El inmueble ya cuenta con otra reserva para el perÃ­odo seleccionado. Por favor ajuste las fechas.
+                            <strong>Conflicto de disponibilidad:</strong> El inmueble ya cuenta con otra reserva para el período seleccionado. Por favor ajuste las fechas.
                         </div>
                     </div>
                 }
@@ -28,7 +28,7 @@
                     <div class="alert alert-success d-flex align-items-center mb-4" role="alert">
                         <i class="bi bi-check-circle-fill fs-3 text-success me-3"></i>
                         <div>
-                            <strong>Inmueble disponible:</strong> La reserva origen concluye el <strong>@original?.FechaHasta.ToString("dd/MM/yyyy")</strong>. Puede proceder a registrar el nuevo perÃ­odo de estadÃ­a.
+                            <strong>Inmueble disponible:</strong> La reserva origen concluye el <strong>@original?.FechaHasta.ToString("dd/MM/yyyy")</strong>. Puede proceder a registrar el nuevo período de estadía.
                         </div>
                     </div>
                 }
@@ -70,7 +70,7 @@
                         <div class="col-md-6">
                             <label asp-for="FechaHasta" class="form-label fw-bold"></label>
                             <input asp-for="FechaHasta" class="form-control" type="date" id="fechaHasta" />
-                            <small class="text-muted">Fecha en la que finalizarÃ¡ la renovaciÃ³n</small>
+                            <small class="text-muted">Fecha en la que finalizará la renovación</small>
                             <span asp-validation-for="FechaHasta" class="text-danger small"></span>
                         </div>
                     </div>
@@ -78,8 +78,8 @@
                     <div class="card bg-light border-0 p-3 mb-4">
                         <div class="row align-items-center">
                             <div class="col-md-6">
-                                <span class="text-muted d-block">DuraciÃ³n estimada:</span>
-                                <strong id="lblDias">@Model.CantidadDias dÃ­as</strong>
+                                <span class="text-muted d-block">Duración estimada:</span>
+                                <strong id="lblDias">@Model.CantidadDias días</strong>
                             </div>
                             <div class="col-md-6 text-md-end">
                                 <span class="text-muted d-block">Monto Total Estimado:</span>
@@ -93,7 +93,7 @@
                             <i class="bi bi-arrow-left me-1"></i> Cancelar
                         </a>
                         <button type="submit" class="btn btn-primary px-4 shadow-sm fw-semibold">
-                            <i class="bi bi-check-circle me-1"></i> Registrar RenovaciÃ³n
+                            <i class="bi bi-check-circle me-1"></i> Registrar Renovación
                         </button>
                     </div>
                 </form>
@@ -118,11 +118,11 @@
                 const diffTime = d2 - d1;
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 if (diffDays > 0) {
-                    lblDias.innerText = diffDays + " dÃ­as";
+                    lblDias.innerText = diffDays + " días";
                     const total = diffDays * precioDia;
                     lblMonto.innerText = "$" + total.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 } else {
-                    lblDias.innerText = "0 dÃ­as";
+                    lblDias.innerText = "0 días";
                     lblMonto.innerText = "$0.00";
                 }
             }

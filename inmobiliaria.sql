@@ -2,7 +2,7 @@
 USE inmobiliaria_ulp;
 
 -- =============================================================
--- TABLA USUARIOS (MÃ“DULO 1: AUTENTICACIÃ“N Y ROLES)
+-- TABLA USUARIOS (MÓDULO 1: AUTENTICACIÓN Y ROLES)
 -- =============================================================
 CREATE TABLE IF NOT EXISTS Usuarios (
     IdUsuario INT AUTO_INCREMENT PRIMARY KEY,
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS Propietarios (
     Activo TINYINT(1) DEFAULT 1
 );
 
--- Compatibilidad con entregas anteriores que tenÃ­an columna Clave
+-- Compatibilidad con entregas anteriores que tenían columna Clave
 SET @tiene_clave := (
     SELECT COUNT(*)
     FROM information_schema.COLUMNS
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS ImagenesInmueble (
 );
 
 -- =============================================================
--- TABLA RESERVAS (INCLUYE AUDITORÃA Y RENOVACIONES)
+-- TABLA RESERVAS (INCLUYE AUDITORÍA Y RENOVACIONES)
 -- =============================================================
 CREATE TABLE IF NOT EXISTS Reservas (
     IdReserva INT AUTO_INCREMENT PRIMARY KEY,
@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS Reservas (
     CONSTRAINT FK_Reserva_ReservaOrigen FOREIGN KEY (IdReservaOrigen) REFERENCES Reservas(IdReserva)
 );
 
--- MigraciÃ³n segura de columnas en caso de base de datos existente
+-- Migración segura de columnas en caso de base de datos existente
 SET @col_creador := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'Reservas' AND COLUMN_NAME = 'IdUsuarioCreador');
 SET @sql_creador := IF(@col_creador = 0, 'ALTER TABLE Reservas ADD COLUMN IdUsuarioCreador INT NULL, ADD CONSTRAINT FK_Reserva_UsuarioCreador FOREIGN KEY (IdUsuarioCreador) REFERENCES Usuarios(IdUsuario)', 'SELECT 1');
 PREPARE stmt FROM @sql_creador; EXECUTE stmt; DEALLOCATE PREPARE stmt;
@@ -143,7 +143,7 @@ SET @sql_origen := IF(@col_origen = 0, 'ALTER TABLE Reservas ADD COLUMN IdReserv
 PREPARE stmt FROM @sql_origen; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 -- =============================================================
--- TABLA PAGOS (MÃ“DULO 2: PAGOS Y AUDITORÃA)
+-- TABLA PAGOS (MÓDULO 2: PAGOS Y AUDITORÍA)
 -- =============================================================
 CREATE TABLE IF NOT EXISTS Pagos (
     IdPago INT AUTO_INCREMENT PRIMARY KEY,
@@ -163,7 +163,7 @@ CREATE TABLE IF NOT EXISTS Pagos (
 );
 
 -- =============================================================
--- DATOS SEMILLA PARA TESTING Y DEMOSTRACIÃ“N
+-- DATOS SEMILLA PARA TESTING Y DEMOSTRACIÓN
 -- =============================================================
 INSERT INTO Propietarios (Nombre, Apellido, Dni, Telefono, Email, Activo) VALUES
 ('Juan', 'Perez', '12345678', '2664123456', 'juan@mail.com', 1),
@@ -182,44 +182,102 @@ INSERT INTO TiposInmueble (Descripcion, Activo) VALUES
 ('Departamento', 1),
 ('Monoambiente', 1),
 ('Loft', 1),
-('CabaÃ±a', 1)
+('Cabaña', 1)
 ON DUPLICATE KEY UPDATE Descripcion=VALUES(Descripcion);
 
-INSERT INTO Inmuebles (Direccion, Cupo, Latitud, Longitud, PrecioDia, PorcentajeReserva, Disponible, Portada, IdTipoInmueble, IdPropietario, Activo) VALUES
-('Av. Illia 450, San Luis', 4, -33.29910000, -66.33560000, 45000.00, 20.00, 1, '/img/casa1.jpg', 1, 1, 1),
-('San MartÃ­n 780, San Luis', 2, -33.30150000, -66.33820000, 30000.00, 15.00, 1, '/img/depto1.jpg', 2, 2, 1),
-('Los Pinos 120, Potrero de los Funes', 6, -33.22140000, -66.23410000, 75000.00, 25.00, 1, '/img/cabana1.jpg', 5, 3, 1);
+-- Inmuebles semilla (Vinculación dinámica por DNI de Propietario y Descripción de Tipo para evitar errores de Foreign Key)
+INSERT INTO Inmuebles (Direccion, Cupo, Latitud, Longitud, PrecioDia, PorcentajeReserva, Disponible, Portada, IdTipoInmueble, IdPropietario, Activo)
+SELECT 
+    'Av. Illia 450, San Luis', 4, -33.29910000, -66.33560000, 45000.00, 20.00, 1, '/img/casa1.jpg',
+    (SELECT IdTipoInmueble FROM TiposInmueble WHERE Descripcion = 'Casa' LIMIT 1),
+    (SELECT IdPropietario FROM Propietarios WHERE Dni = '12345678' LIMIT 1),
+    1
+FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM Inmuebles WHERE Direccion = 'Av. Illia 450, San Luis');
+
+INSERT INTO Inmuebles (Direccion, Cupo, Latitud, Longitud, PrecioDia, PorcentajeReserva, Disponible, Portada, IdTipoInmueble, IdPropietario, Activo)
+SELECT 
+    'San Martín 780, San Luis', 2, -33.30150000, -66.33820000, 30000.00, 15.00, 1, '/img/depto1.jpg',
+    (SELECT IdTipoInmueble FROM TiposInmueble WHERE Descripcion = 'Departamento' LIMIT 1),
+    (SELECT IdPropietario FROM Propietarios WHERE Dni = '87654321' LIMIT 1),
+    1
+FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM Inmuebles WHERE Direccion = 'San Martín 780, San Luis');
+
+INSERT INTO Inmuebles (Direccion, Cupo, Latitud, Longitud, PrecioDia, PorcentajeReserva, Disponible, Portada, IdTipoInmueble, IdPropietario, Activo)
+SELECT 
+    'Los Pinos 120, Potrero de los Funes', 6, -33.22140000, -66.23410000, 75000.00, 25.00, 1, '/img/cabana1.jpg',
+    (SELECT IdTipoInmueble FROM TiposInmueble WHERE Descripcion = 'Cabaña' LIMIT 1),
+    (SELECT IdPropietario FROM Propietarios WHERE Dni = '23456789' LIMIT 1),
+    1
+FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM Inmuebles WHERE Direccion = 'Los Pinos 120, Potrero de los Funes');
+
+-- Galería fotográfica semilla
+INSERT INTO ImagenesInmueble (IdInmueble, Url, EsPortada)
+SELECT i.IdInmueble, '/img/casa1.jpg', 1
+FROM Inmuebles i
+WHERE i.Direccion = 'Av. Illia 450, San Luis'
+  AND NOT EXISTS (SELECT 1 FROM ImagenesInmueble img WHERE img.IdInmueble = i.IdInmueble AND img.Url = '/img/casa1.jpg');
 
 INSERT INTO ImagenesInmueble (IdInmueble, Url, EsPortada)
-SELECT 1, '/img/casa1.jpg', 1 FROM DUAL
-WHERE EXISTS (SELECT 1 FROM Inmuebles WHERE IdInmueble = 1)
-  AND NOT EXISTS (SELECT 1 FROM ImagenesInmueble WHERE IdInmueble = 1 AND Url = '/img/casa1.jpg');
+SELECT i.IdInmueble, '/img/casa1-living.jpg', 0
+FROM Inmuebles i
+WHERE i.Direccion = 'Av. Illia 450, San Luis'
+  AND NOT EXISTS (SELECT 1 FROM ImagenesInmueble img WHERE img.IdInmueble = i.IdInmueble AND img.Url = '/img/casa1-living.jpg');
 
 INSERT INTO ImagenesInmueble (IdInmueble, Url, EsPortada)
-SELECT 1, '/img/casa1-living.jpg', 0 FROM DUAL
-WHERE EXISTS (SELECT 1 FROM Inmuebles WHERE IdInmueble = 1)
-  AND NOT EXISTS (SELECT 1 FROM ImagenesInmueble WHERE IdInmueble = 1 AND Url = '/img/casa1-living.jpg');
+SELECT i.IdInmueble, '/img/depto1.jpg', 1
+FROM Inmuebles i
+WHERE i.Direccion = 'San Martín 780, San Luis'
+  AND NOT EXISTS (SELECT 1 FROM ImagenesInmueble img WHERE img.IdInmueble = i.IdInmueble AND img.Url = '/img/depto1.jpg');
 
-INSERT INTO ImagenesInmueble (IdInmueble, Url, EsPortada)
-SELECT 2, '/img/depto1.jpg', 1 FROM DUAL
-WHERE EXISTS (SELECT 1 FROM Inmuebles WHERE IdInmueble = 2)
-  AND NOT EXISTS (SELECT 1 FROM ImagenesInmueble WHERE IdInmueble = 2 AND Url = '/img/depto1.jpg');
+-- Reservas semilla
+INSERT INTO Reservas (IdInquilino, IdInmueble, FechaDesde, FechaHasta, PrecioPorDia, MontoTotal, Estado, IdUsuarioCreador, Activo) 
+SELECT 
+    (SELECT IdInquilino FROM Inquilinos WHERE Dni = '11223344' LIMIT 1),
+    (SELECT IdInmueble FROM Inmuebles WHERE Direccion = 'Av. Illia 450, San Luis' LIMIT 1),
+    '2026-10-01', '2026-10-07', 45000.00, 270000.00, 'Vigente',
+    (SELECT IdUsuario FROM Usuarios WHERE Email = 'admin@inmobiliaria.com' LIMIT 1),
+    1
+FROM DUAL
+WHERE NOT EXISTS (
+    SELECT 1 FROM Reservas r
+    WHERE r.IdInmueble = (SELECT IdInmueble FROM Inmuebles WHERE Direccion = 'Av. Illia 450, San Luis' LIMIT 1)
+      AND r.FechaDesde = '2026-10-01'
+);
 
 INSERT INTO Reservas (IdInquilino, IdInmueble, FechaDesde, FechaHasta, PrecioPorDia, MontoTotal, Estado, IdUsuarioCreador, Activo) 
-SELECT 1, 1, '2026-10-01', '2026-10-07', 45000.00, 270000.00, 'Vigente', 1, 1 FROM DUAL
-WHERE NOT EXISTS (SELECT 1 FROM Reservas WHERE IdInquilino = 1 AND IdInmueble = 1 AND FechaDesde = '2026-10-01');
+SELECT 
+    (SELECT IdInquilino FROM Inquilinos WHERE Dni = '44332211' LIMIT 1),
+    (SELECT IdInmueble FROM Inmuebles WHERE Direccion = 'San Martín 780, San Luis' LIMIT 1),
+    '2026-10-10', '2026-10-15', 30000.00, 150000.00, 'Vigente',
+    (SELECT IdUsuario FROM Usuarios WHERE Email = 'empleado@inmobiliaria.com' LIMIT 1),
+    1
+FROM DUAL
+WHERE NOT EXISTS (
+    SELECT 1 FROM Reservas r
+    WHERE r.IdInmueble = (SELECT IdInmueble FROM Inmuebles WHERE Direccion = 'San Martín 780, San Luis' LIMIT 1)
+      AND r.FechaDesde = '2026-10-10'
+);
 
-INSERT INTO Reservas (IdInquilino, IdInmueble, FechaDesde, FechaHasta, PrecioPorDia, MontoTotal, Estado, IdUsuarioCreador, Activo) 
-SELECT 2, 2, '2026-10-10', '2026-10-15', 30000.00, 150000.00, 'Vigente', 2, 1 FROM DUAL
-WHERE NOT EXISTS (SELECT 1 FROM Reservas WHERE IdInquilino = 2 AND IdInmueble = 2 AND FechaDesde = '2026-10-10');
-
--- Pagos iniciales (SeÃ±as)
+-- Pagos iniciales (Señas)
 INSERT INTO Pagos (IdReserva, NumeroPago, FechaPago, Importe, Concepto, Estado, IdUsuarioCreador, Activo)
-SELECT 1, 1, '2026-09-14 10:00:00', 54000.00, 'SeÃ±a de reserva (20%)', 'Activo', 1, 1 FROM DUAL
-WHERE EXISTS (SELECT 1 FROM Reservas WHERE IdReserva = 1)
-  AND NOT EXISTS (SELECT 1 FROM Pagos WHERE IdReserva = 1 AND NumeroPago = 1);
+SELECT 
+    r.IdReserva, 1, '2026-09-14 10:00:00', 54000.00, 'Seña de reserva (20%)', 'Activo',
+    (SELECT IdUsuario FROM Usuarios WHERE Email = 'admin@inmobiliaria.com' LIMIT 1),
+    1
+FROM Reservas r
+WHERE r.IdInmueble = (SELECT IdInmueble FROM Inmuebles WHERE Direccion = 'Av. Illia 450, San Luis' LIMIT 1)
+  AND r.FechaDesde = '2026-10-01'
+  AND NOT EXISTS (SELECT 1 FROM Pagos p WHERE p.IdReserva = r.IdReserva AND p.NumeroPago = 1);
 
 INSERT INTO Pagos (IdReserva, NumeroPago, FechaPago, Importe, Concepto, Estado, IdUsuarioCreador, Activo)
-SELECT 2, 1, '2026-09-14 11:30:00', 22500.00, 'SeÃ±a de reserva (15%)', 'Activo', 2, 1 FROM DUAL
-WHERE EXISTS (SELECT 1 FROM Reservas WHERE IdReserva = 2)
-  AND NOT EXISTS (SELECT 1 FROM Pagos WHERE IdReserva = 2 AND NumeroPago = 1);
+SELECT 
+    r.IdReserva, 1, '2026-09-14 11:30:00', 22500.00, 'Seña de reserva (15%)', 'Activo',
+    (SELECT IdUsuario FROM Usuarios WHERE Email = 'empleado@inmobiliaria.com' LIMIT 1),
+    1
+FROM Reservas r
+WHERE r.IdInmueble = (SELECT IdInmueble FROM Inmuebles WHERE Direccion = 'San Martín 780, San Luis' LIMIT 1)
+  AND r.FechaDesde = '2026-10-10'
+  AND NOT EXISTS (SELECT 1 FROM Pagos p WHERE p.IdReserva = r.IdReserva AND p.NumeroPago = 1);
